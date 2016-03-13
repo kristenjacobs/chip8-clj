@@ -64,6 +64,10 @@
   [machine-state]
   (assoc machine-state :pc (+ (:pc machine-state) 2)))
 
+(defn skip-next-pc
+  [machine-state]
+  (assoc machine-state :pc (+ (:pc machine-state) 4)))
+
 ; TODO: Update to handle multibyte output
 (defn get-memory
   [machine-state addr]

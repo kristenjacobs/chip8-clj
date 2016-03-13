@@ -4,6 +4,54 @@
             [chip8-clj.machine-state :as machine-state]
             [clojure.tools.logging :as log]))
 
+(defn execute-0NNN
+  [machine-state opcode]
+  (log/debug "execute-0NNN: Error: Not yet implemented")
+  (System/exit 1))
+
+(defn execute-00E0
+  [machine-state opcode]
+  (log/debug "execute-00E0: Error: Not yet implemented")
+  (System/exit 1))
+
+(defn execute-00EE
+  [machine-state opcode]
+  (log/debug "execute-00EE: Error: Not yet implemented")
+  (System/exit 1))
+
+(defn execute-1NNN
+  [machine-state opcode]
+  (log/debug "execute-1NNN: Error: Not yet implemented")
+  (System/exit 1))
+
+(defn execute-2NNN
+  [machine-state opcode]
+  (log/debug "execute-2NNN: Error: Not yet implemented")
+  (System/exit 1))
+
+(defn execute-3XNN
+  [machine-state opcode]
+  (log/debug "execute-3XNN")
+  (let [reg (utils/get-nibble1 opcode)
+        imm (utils/get-byte1 opcode)]
+    (if (= (machine-state/get-register machine-state reg) imm)
+        (machine-state/skip-next-pc machine-state)
+        (machine-state/increment-pc machine-state))))
+
+(defn execute-4XNN
+  [machine-state opcode]
+  (log/debug "execute-4XNN")
+  (let [reg (utils/get-nibble1 opcode)
+        imm (utils/get-byte1 opcode)]
+    (if (not= (machine-state/get-register machine-state reg) imm)
+        (machine-state/skip-next-pc machine-state)
+        (machine-state/increment-pc machine-state))))
+
+(defn execute-5XY0
+  [machine-state opcode]
+  (log/debug "execute-5XY0: Error: Not yet implemented")
+  (System/exit 1))
+
 (defn execute-6XNN
   [machine-state opcode]
   (log/debug "execute-6XNN")
@@ -23,3 +71,127 @@
         (machine-state/set-register reg (+ oper imm))
         (machine-state/increment-pc))))
 
+(defn execute-8XY0
+  [machine-state opcode]
+  (log/debug "execute-8XY0: Error: Not yet implemented")
+  (System/exit 1))
+
+(defn execute-8XY1
+  [machine-state opcode]
+  (log/debug "execute-8XY1: Error: Not yet implemented")
+  (System/exit 1))
+
+(defn execute-8XY2
+  [machine-state opcode]
+  (log/debug "execute-8XY2: Error: Not yet implemented")
+  (System/exit 1))
+
+(defn execute-8XY3
+  [machine-state opcode]
+  (log/debug "execute-8XY3: Error: Not yet implemented")
+  (System/exit 1))
+
+(defn execute-8XY4
+  [machine-state opcode]
+  (log/debug "execute-8XY4: Error: Not yet implemented")
+  (System/exit 1))
+
+(defn execute-8XY5
+  [machine-state opcode]
+  (log/debug "execute-8XY5: Error: Not yet implemented")
+  (System/exit 1))
+
+(defn execute-8XY6
+  [machine-state opcode]
+  (log/debug "execute-8XY6: Error: Not yet implemented")
+  (System/exit 1))
+
+(defn execute-8XY7
+  [machine-state opcode]
+  (log/debug "execute-8XY7: Error: Not yet implemented")
+  (System/exit 1))
+
+(defn execute-8XYE
+  [machine-state opcode]
+  (log/debug "execute-8XYE: Error: Not yet implemented")
+  (System/exit 1))
+
+(defn execute-9XY0
+  [machine-state opcode]
+  (log/debug "execute-9XY0: Error: Not yet implemented")
+  (System/exit 1))
+
+(defn execute-ANNN
+  [machine-state opcode]
+  (log/debug "execute-ANNN: Error: Not yet implemented")
+  (System/exit 1))
+
+(defn execute-BNNN
+  [machine-state opcode]
+  (log/debug "execute-BNNN: Error: Not yet implemented")
+  (System/exit 1))
+
+(defn execute-CXNN
+  [machine-state opcode]
+  (log/debug "execute-CXNN: Error: Not yet implemented")
+  (System/exit 1))
+
+(defn execute-DXYN
+  [machine-state opcode]
+  (log/debug "execute-DXYN: Error: Not yet implemented")
+  (System/exit 1))
+
+(defn execute-EX9E
+  [machine-state opcode]
+  (log/debug "execute-EX9E: Error: Not yet implemented")
+  (System/exit 1))
+
+(defn execute-EXA1
+  [machine-state opcode]
+  (log/debug "execute-EXA1: Error: Not yet implemented")
+  (System/exit 1))
+
+(defn execute-FX07
+  [machine-state opcode]
+  (log/debug "execute-FX07: Error: Not yet implemented")
+  (System/exit 1))
+
+(defn execute-FX0A
+  [machine-state opcode]
+  (log/debug "execute-FX0A: Error: Not yet implemented")
+  (System/exit 1))
+
+(defn execute-FX15
+  [machine-state opcode]
+  (log/debug "execute-FX15: Error: Not yet implemented")
+  (System/exit 1))
+
+(defn execute-FX18
+  [machine-state opcode]
+  (log/debug "execute-FX18: Error: Not yet implemented")
+  (System/exit 1))
+
+(defn execute-FX1E
+  [machine-state opcode]
+  (log/debug "execute-FX1E: Error: Not yet implemented")
+  (System/exit 1))
+
+(defn execute-FX29
+  [machine-state opcode]
+  (log/debug "execute-FX29: Error: Not yet implemented")
+  (System/exit 1))
+
+(defn execute-FX33
+  [machine-state opcode]
+  (log/debug "execute-FX33: Error: Not yet implemented")
+  (System/exit 1))
+
+(defn execute-FX55
+  [machine-state opcode]
+  (log/debug "execute-FX55: Error: Not yet implemented")
+  (System/exit 1))
+
+(defn execute-FX65
+  [machine-state opcode]
+  (log/debug "execute-FX65: Error: Not yet implemented")
+  (System/exit 1))
