@@ -60,6 +60,10 @@
   [machine-state pc]
   (assoc machine-state :pc pc))
 
+(defn increment-pc
+  [machine-state]
+  (assoc machine-state :pc (+ (:pc machine-state) 2)))
+
 ; TODO: Update to handle multibyte output
 (defn get-memory
   [machine-state addr]

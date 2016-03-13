@@ -9,7 +9,9 @@
   (log/debug "execute-6XNN")
   (let [reg (utils/get-nibble1 opcode)
         imm (utils/get-byte1 opcode)]
-    (machine-state/set-register machine-state reg imm)))
+    (-> machine-state
+        (machine-state/set-register reg imm)
+        (machine-state/increment-pc))))
 
 (defn execute-7XNN
   [machine-state opcode]
@@ -17,5 +19,7 @@
   (let [reg (utils/get-nibble1 opcode)
         imm (utils/get-byte1 opcode)
         oper (machine-state/get-register machine-state reg)]
-    (machine-state/set-register machine-state reg (+ oper imm))))
+    (-> machine-state
+        (machine-state/set-register reg (+ oper imm))
+        (machine-state/increment-pc))))
 
