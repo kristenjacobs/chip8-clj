@@ -8,3 +8,4 @@
 (defn get-nibble2 [opcode] (bit-and 0xF (bit-shift-right opcode 4)))
 (defn get-nibble3 [opcode] (bit-and 0xF (bit-shift-right opcode 0)))
 
+(defn get-nnn [opcode] (bit-and 0xFFF opcode))

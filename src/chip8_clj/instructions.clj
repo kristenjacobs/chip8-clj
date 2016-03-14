@@ -21,8 +21,9 @@
 
 (defn execute-1NNN
   [machine-state opcode]
-  (log/debug "execute-1NNN: Error: Not yet implemented")
-  (System/exit 1))
+  (log/debug "execute-1NNN")
+  (let [imm (utils/get-nnn opcode)]
+    (machine-state/set-pc machine-state imm)))
 
 (defn execute-2NNN
   [machine-state opcode]
