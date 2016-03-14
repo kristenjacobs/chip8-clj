@@ -45,7 +45,11 @@
       (= nibble0 0x4)
         (instructions/execute-4XNN machine-state opcode)
       (= nibble0 0x5)
-        (instructions/execute-5XY0 machine-state opcode)
+        (cond
+          (= nibble3 0x0)
+            (instructions/execute-5XY0 machine-state opcode)
+          :else
+            (unknown-opcode-error))
       (= nibble0 0x6)
         (instructions/execute-6XNN machine-state opcode)
       (= nibble0 0x7) 

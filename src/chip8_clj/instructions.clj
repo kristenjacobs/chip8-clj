@@ -49,8 +49,13 @@
 
 (defn execute-5XY0
   [machine-state opcode]
-  (log/debug "execute-5XY0: Error: Not yet implemented")
-  (System/exit 1))
+  (log/debug "execute-5XY0")
+  (let [reg-x (utils/get-nibble1 opcode)
+        reg-y (utils/get-nibble2 opcode)]
+    (if (= (machine-state/get-register machine-state reg-x) 
+           (machine-state/get-register machine-state reg-y))
+        (machine-state/skip-next-pc machine-state)
+        (machine-state/increment-pc machine-state))))
 
 (defn execute-6XNN
   [machine-state opcode]

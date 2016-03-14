@@ -1,5 +1,6 @@
 (ns chip8-clj.machine-state
-  (:require [chip8-clj.graphics :as graphics]))
+  (:require [chip8-clj.graphics :as graphics]
+            [chip8-clj.utils :as utils]))
 
 (def memory-size 0x1000)
 (def program-load-addr 0x200)
@@ -68,16 +69,20 @@
   [machine-state]
   (assoc machine-state :pc (+ (:pc machine-state) 4)))
 
-; TODO: Update to handle multibyte output
 (defn get-memory
   [machine-state addr]
   (get (:memory machine-state) addr))
 
-; TODO: Update to handle multibyte input
 (defn set-memory
   [machine-state addr value]
   (aset-byte (:memory machine-state) addr value)
   machine-state)
+
+(defn set-instr
+  [machine-state addr value]
+  (-> machine-state
+    (set-memory addr       (utils/get-byte0 value))
+    (set-memory (+ addr 1) (utils/get-byte1 value))))
 
 (defn get-register 
   [machine-state reg]
