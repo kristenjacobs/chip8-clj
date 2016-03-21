@@ -11,9 +11,8 @@
     (do
       (println "Error: Usage: lein run <rom file>")
       (System/exit 1))
-    ((let [rom-file (first args)
-           machine-state (machine-state/initialise rom-file)]
-       (future (core/start machine-state))
-       (future (sound/start machine-state))
-       (graphics/start machine-state)))))
+    (let [machine-state (machine-state/initialise (first args))]
+      (future (core/start machine-state))
+      (future (sound/start machine-state))
+      (graphics/start machine-state))))
 

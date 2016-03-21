@@ -95,7 +95,7 @@
 
 (defn initialise
   ([rom-file]
-   (-> initialise
+   (-> (initialise)
        (load-rom-into-memory rom-file)))
   ([]
    (-> {}

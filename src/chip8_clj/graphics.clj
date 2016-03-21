@@ -61,9 +61,9 @@
             screen-buffer (range 0 height-pixels))))
 
 (defn- create-frame
-  [canvas]
+  [cvs]
   (frame :title "Chip8-clj"
-         :content canvas
+         :content cvs
          :width (* pixel-width width-pixels) 
          :height (+ 15 (* pixel-height height-pixels))
          :on-close :exit))
