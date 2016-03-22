@@ -16,23 +16,23 @@
 
 (defn execute-00EE
   [machine-state opcode]
-  (log/debug "execute-00EE: Error: Not yet implemented")
-  (System/exit 1))
+  (log/debug (format "0x%04x - 00EE" (:pc machine-state)))
+  (machine-state/return machine-state))
 
 (defn execute-1NNN
   [machine-state opcode]
-  (log/debug "execute-1NNN")
+  (log/debug (format "0x%04x - 1NNN" (:pc machine-state)))
   (let [imm (utils/get-nnn opcode)]
     (machine-state/set-pc machine-state imm)))
 
 (defn execute-2NNN
   [machine-state opcode]
-  (log/debug "execute-2NNN: Error: Not yet implemented")
-  (System/exit 1))
+  (log/debug (format "0x%04x - 2NNN" (:pc machine-state)))
+  (machine-state/call machine-state (utils/get-nnn opcode)))
 
 (defn execute-3XNN
   [machine-state opcode]
-  (log/debug "execute-3XNN")
+  (log/debug (format "0x%04x - 3XNN" (:pc machine-state)))
   (let [reg (utils/get-nibble1 opcode)
         imm (utils/get-byte1 opcode)]
     (if (= (machine-state/get-register machine-state reg) imm)
@@ -41,7 +41,7 @@
 
 (defn execute-4XNN
   [machine-state opcode]
-  (log/debug "execute-4XNN")
+  (log/debug (format "0x%04x - 4XNN" (:pc machine-state)))
   (let [reg (utils/get-nibble1 opcode)
         imm (utils/get-byte1 opcode)]
     (if (not= (machine-state/get-register machine-state reg) imm)
@@ -50,7 +50,7 @@
 
 (defn execute-5XY0
   [machine-state opcode]
-  (log/debug "execute-5XY0")
+  (log/debug (format "0x%04x - 5XY0" (:pc machine-state)))
   (let [reg-x (utils/get-nibble1 opcode)
         reg-y (utils/get-nibble2 opcode)]
     (if (= (machine-state/get-register machine-state reg-x) 
@@ -60,7 +60,7 @@
 
 (defn execute-6XNN
   [machine-state opcode]
-  (log/debug "execute-6XNN")
+  (log/debug (format "0x%04x - 6XNN" (:pc machine-state)))
   (let [reg (utils/get-nibble1 opcode)
         imm (utils/get-byte1 opcode)]
     (-> machine-state
@@ -69,7 +69,7 @@
 
 (defn execute-7XNN
   [machine-state opcode]
-  (log/debug "execute-7XNN")
+  (log/debug (format "0x%04x - 7XNN" (:pc machine-state)))
   (let [reg (utils/get-nibble1 opcode)
         imm (utils/get-byte1 opcode)
         oper (machine-state/get-register machine-state reg)]
@@ -129,8 +129,11 @@
 
 (defn execute-ANNN
   [machine-state opcode]
-  (log/debug "execute-ANNN: Error: Not yet implemented")
-  (System/exit 1))
+  (log/debug (format "0x%04x - ANNN" (:pc machine-state)))
+  (let [value (utils/get-nnn opcode)]
+    (-> machine-state
+        (machine-state/set-addr-reg value)
+        (machine-state/increment-pc))))
 
 (defn execute-BNNN
   [machine-state opcode]

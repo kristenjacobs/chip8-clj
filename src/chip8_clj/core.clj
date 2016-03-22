@@ -7,13 +7,13 @@
 
 (defn- fetch-opcode
   [machine-state]
-  (log/debug (format "fetch-opcode, pc: 0x%x" (:pc machine-state)))
+  ;(log/debug (format "fetch-opcode, pc: 0x%x" (:pc machine-state)))
   (let [pc (:pc machine-state)
         memory (:memory machine-state)
         byte0 (get memory pc)
         byte1 (get memory (+ pc 1))]
-    (log/debug (format "fetch-opcode byte0: 0x%02x" byte0))
-    (log/debug (format "fetch-opcode byte1: 0x%02x" byte1))
+    ;(log/debug (format "fetch-opcode byte0: 0x%02x" byte0))
+    ;(log/debug (format "fetch-opcode byte1: 0x%02x" byte1))
     (bit-or (bit-shift-left byte0 8) (bit-and byte1 0xff)))) 
 
 (defn unknown-opcode-error
@@ -23,15 +23,15 @@
 
 (defn- decode-and-execute 
   [machine-state opcode]
-  (log/debug (format "decode-and-execute: 0x%04x" opcode))
+  ;(log/debug (format "decode-and-execute: 0x%04x" opcode))
   (let [byte0   (utils/get-byte0 opcode)
         byte1   (utils/get-byte1 opcode) 
         nibble0 (utils/get-nibble0 opcode)
         nibble1 (utils/get-nibble1 opcode)
         nibble2 (utils/get-nibble2 opcode)
         nibble3 (utils/get-nibble3 opcode)]
-    (log/debug (format "decode-and-execute: byte0: 0x%02x" byte0))
-    (log/debug (format "decode-and-execute: byte1: 0x%02x" byte1))
+    ;(log/debug (format "decode-and-execute: byte0: 0x%02x" byte0))
+    ;(log/debug (format "decode-and-execute: byte1: 0x%02x" byte1))
     (cond 
       (= nibble0 0x0)
         (cond 
@@ -143,16 +143,16 @@
   ; TODO 
   ; Start execution loop here
   ; (Loop until the program exits, or is closed externally)
-  (loop [iteration 0]
-    (log/debug iteration)
-    (step machine-state)
-    (if (= iteration 10)
+  (loop [ms machine-state 
+         iteration 0]
+    ;(log/debug iteration)
+    (if (= iteration 11)
       0
-      (recur (inc iteration)))))
+      (recur (step ms) (inc iteration)))))
 
-;(defn test-func
-;  []
-;  (let [machine-state (chip8-clj.machine-state/initialise 
-;                        "/home/kris/ProgrammingHome/chip8-clj/dev-resources/Games/TETRIS")]
-;      (start machine-state)))
+(defn test-func
+  []
+  (let [machine-state (chip8-clj.machine-state/initialise 
+                        "/home/kris/ProgrammingHome/chip8-clj-resources/Games/TETRIS")]
+      (start machine-state)))
 
