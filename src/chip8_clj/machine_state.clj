@@ -15,9 +15,7 @@
 (defn- initialise-screen-buffer
   [machine-state]
   (assoc machine-state 
-         :screen-buffer 
-         (vec (repeat (* graphics/height-pixels 
-                         graphics/width-pixels) 0))))
+         :screen-buffer (graphics/create-screen-buffer)))
 
 (defn- initialise-timers
   [machine-state]
@@ -87,7 +85,7 @@
 
 (defn set-memory
   [machine-state addr value]
-  (aset-byte (:memory machine-state) addr value)
+  (aset-byte (:memory machine-state) addr (unchecked-byte value))
   machine-state)
 
 (defn set-instr
@@ -111,8 +109,15 @@
 
 (defn set-addr-reg
   [machine-state value]
-  (assoc machine-state :addr-reg value)
-  machine-state)
+  (assoc machine-state :addr-reg value))
+
+(defn get-screen-buffer-byte 
+  [machine-state x y]
+  (get (:screen-buffer machine-state) (graphics/get-index x y)))
+
+(defn set-screen-buffer-byte
+  [machine-state x y value]
+  (assoc-in machine-state [:screen-buffer (graphics/get-index x y)] value))
 
 (defn initialise
   ([rom-file]

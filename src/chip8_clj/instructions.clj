@@ -30,7 +30,7 @@
 (defn execute-2NNN
   [machine-state opcode]
   (let [target-addr (utils/get-nnn opcode)]
-    (log/debug (format "0x%04x 2NNN cal 0x%04x" (:pc machine-state) target-addr))
+    (log/debug (format "0x%04x 2NNN cll 0x%04x" (:pc machine-state) target-addr))
     (aset-int (:stack machine-state) (:stack-ptr machine-state) (+ (:pc machine-state) 2))
     (-> machine-state
         (assoc :stack-ptr (inc (:stack-ptr machine-state)))
@@ -163,9 +163,16 @@
 
 (defn execute-DXYN
   [machine-state opcode]
-  (log/debug "execute-DXYN: Error: Not yet implemented")
-  (Thread/sleep 10000)
-  (System/exit 1))
+  (let [reg-x-num (utils/get-nibble1 opcode)
+        reg-y-num (utils/get-nibble2 opcode)
+        imm (utils/get-nibble3 opcode)
+        reg-x-val (machine-state/get-register machine-state reg-x-num) 
+        reg-y-val (machine-state/get-register machine-state reg-y-num)
+        addr-reg (machine-state/get-addr-reg machine-state)]
+    (log/debug (format "0x%04x DXVN drw V[%d](0x%02x), V[%d](0x%02x), %d, I(0x%04x)" 
+                       (:pc machine-state) reg-x-num reg-x-val reg-y-val reg-y-val, imm, addr-reg))
+    ; TODO: Complete implementation!
+    (machine-state/increment-pc machine-state)))
 
 (defn execute-EX9E
   [machine-state opcode]

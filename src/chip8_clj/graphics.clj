@@ -80,6 +80,11 @@
   ;(log/debug "creating screen")
   (canvas :id :canvas :paint nil))
 
+(defn create-screen-buffer
+  []
+  ;(log/debug "creating screen buffer")
+  (vec (repeat (* height-pixels width-pixels) 0)))
+
 (defn start
   [machine-state]
   ;(log/debug "Starting graphics")
