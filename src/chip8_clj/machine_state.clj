@@ -114,19 +114,6 @@
   (assoc machine-state :addr-reg value)
   machine-state)
 
-(defn call
-  [machine-state target-addr]
-  (aset-int (:stack machine-state) (:stack-ptr machine-state) (+ (:pc machine-state) 2))
-  (-> machine-state
-      (assoc :stack-ptr (inc (:stack-ptr machine-state)))
-      (assoc :pc target-addr)))
-
-(defn return
-  [machine-state]
-  (let [machine-state (assoc machine-state :stack-ptr (dec (:stack-ptr machine-state)))
-        return-addr (get (:stack machine-state) (:stack-ptr machine-state))]
-    (assoc machine-state :pc return-addr)))
-
 (defn initialise
   ([rom-file]
    (-> (initialise)
