@@ -12,6 +12,13 @@
   [machine-state]
   (assoc machine-state :screen (graphics/create-screen)))
 
+(defn- initialise-screen-buffer
+  [machine-state]
+  (assoc machine-state 
+         :screen-buffer 
+         (vec (repeat (* graphics/height-pixels 
+                         graphics/width-pixels) 0))))
+
 (defn- initialise-timers
   [machine-state]
   (assoc machine-state :delay-timer 0)
@@ -127,6 +134,7 @@
   ([]
    (-> {}
        (initialise-screen)
+       (initialise-screen-buffer)
        (initialise-timers)
        (initialise-registers)
        (initialise-memory)

@@ -41,24 +41,31 @@
 
 (defn refresh-screen
   [screen-buffer canvas graphics]
-  (log/debug "Refreshing screen")
+  ;(log/debug "Refreshing screen")
   (doall (map (fn [index pixel] 
                 (if (= pixel 1)
                   (set-pixel-white canvas graphics index)
                   (set-pixel-black canvas graphics index)))
               (iterate inc 0) screen-buffer)))
 
-(defn handle-graphics
+; Testing only: Draws a diagonal line of pixels on the screen.
+;(defn handle-graphics
+;  [machine-state]
+;  (let [canvas (:screen machine-state)
+;        screen-buffer (vec (repeat (* height-pixels width-pixels) 0))]
+;    (reduce (fn [screen-buffer i]
+;              (Thread/sleep 100)
+;              (config! canvas :paint (partial refresh-screen screen-buffer))
+;              (repaint! canvas)
+;              (-> screen-buffer
+;                  (set-pixel-in-buffer i i 1)))
+;            screen-buffer (range 0 height-pixels))))
+
+(defn render-screen-buffer
   [machine-state]
   (let [canvas (:screen machine-state)
-        screen-buffer (vec (repeat (* height-pixels width-pixels) 0))]
-    (reduce (fn [screen-buffer i]
-              (Thread/sleep 100)
-              (config! canvas :paint (partial refresh-screen screen-buffer))
-              (repaint! canvas)
-              (-> screen-buffer
-                  (set-pixel-in-buffer i i 1)))
-            screen-buffer (range 0 height-pixels))))
+        screen-buffer (:screen-buffer machine-state)]
+    (config! canvas :paint (partial refresh-screen screen-buffer))))
 
 (defn- create-frame
   [cvs]
@@ -70,10 +77,10 @@
 
 (defn create-screen
   []
-  (log/debug "creating screen")
+  ;(log/debug "creating screen")
   (canvas :id :canvas :paint nil))
 
 (defn start
   [machine-state]
-  (log/debug "Starting graphics")
+  ;(log/debug "Starting graphics")
   (show! (create-frame (:screen machine-state))))

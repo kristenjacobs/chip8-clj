@@ -148,6 +148,7 @@
 (defn execute-DXYN
   [machine-state opcode]
   (log/debug "execute-DXYN: Error: Not yet implemented")
+  (Thread/sleep 10000)
   (System/exit 1))
 
 (defn execute-EX9E

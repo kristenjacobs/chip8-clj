@@ -136,23 +136,13 @@
 (defn start
   [machine-state]
   (log/debug "Starting core")
- 
-  ; TODO: Just testing the graphics here.
-  (graphics/handle-graphics machine-state)
+  (graphics/render-screen-buffer machine-state)
+  (loop [ms machine-state]
+    (recur (step ms))))
 
-  ; TODO 
-  ; Start execution loop here
-  ; (Loop until the program exits, or is closed externally)
-  (loop [ms machine-state 
-         iteration 0]
-    ;(log/debug iteration)
-    (if (= iteration 11)
-      0
-      (recur (step ms) (inc iteration)))))
-
-(defn test-func
-  []
-  (let [machine-state (chip8-clj.machine-state/initialise 
-                        "/home/kris/ProgrammingHome/chip8-clj-resources/Games/TETRIS")]
-      (start machine-state)))
+;(defn test-func
+;  []
+;  (let [machine-state (chip8-clj.machine-state/initialise 
+;                        "/home/kris/ProgrammingHome/chip8-clj-resources/Games/TETRIS")]
+;      (start machine-state)))
 
