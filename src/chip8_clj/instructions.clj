@@ -171,7 +171,28 @@
         addr-reg (machine-state/get-addr-reg machine-state)]
     (log/debug (format "0x%04x DXVN drw V[%d](0x%02x), V[%d](0x%02x), %d, I(0x%04x)" 
                        (:pc machine-state) reg-x-num reg-x-val reg-y-val reg-y-val, imm, addr-reg))
+    
     ; TODO: Complete implementation!
+    ; Loop from 0 to imm:
+
+      ; Calculate the screen buffer index for VX, VY + n.
+      ; Get the value at index in the screen buffer.
+      ; Get the value at addr-reg + n from the memory.
+
+      ; VF = false
+      ; For each bit in the byte:
+        ; If 1 && 1
+          ; Clear bit
+          ; VF = true
+        ; If 0 && 1 or 1 && 0
+          ; Set bit
+        ; else if 0 && 0
+          ; Clear bit 
+    
+      ; Write the byte back to the screen buffer.    
+
+    ; Set the VF result  
+
     (machine-state/increment-pc machine-state)))
 
 (defn execute-EX9E
