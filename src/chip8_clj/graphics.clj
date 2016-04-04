@@ -21,6 +21,10 @@
   [x y]
   (+ (* y width-pixels) x))
 
+(defn get-pixel-in-buffer
+  [screen-buffer x y]
+  (assoc screen-buffer (get-index x y) value))
+
 (defn set-pixel-in-buffer
   [screen-buffer x y value]
   (assoc screen-buffer (get-index x y) value))
@@ -83,7 +87,7 @@
 (defn create-screen-buffer
   []
   ;(log/debug "creating screen buffer")
-  (vec (repeat (* height-pixels width-pixels) 0)))
+  (short-array (* height-pixels width-pixels)))
 
 (defn start
   [machine-state]

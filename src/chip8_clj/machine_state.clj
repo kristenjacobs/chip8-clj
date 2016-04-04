@@ -25,12 +25,12 @@
 (defn- initialise-registers
   [machine-state]
   (-> machine-state
-    (assoc :registers (byte-array num-reigsters))
+    (assoc :registers (short-array num-reigsters))
     (assoc :addr-reg 0)))
 
 (defn- initialise-memory
   [machine-state]
-  (assoc machine-state :memory (byte-array memory-size)))
+  (assoc machine-state :memory (short-array memory-size)))
 
 (defn- initialise-stack
   [machine-state]
@@ -59,7 +59,7 @@
         rom-bytes (read-rom-into-byte-array rom-file)]
     (doall (map-indexed 
              (fn [index rom-byte]
-               (aset-byte memory (+ program-load-addr index) rom-byte))
+               (aset-short memory (+ program-load-addr index) rom-byte))
              (vec rom-bytes)))
     machine-state))
 
@@ -85,7 +85,7 @@
 
 (defn set-memory
   [machine-state addr value]
-  (aset-byte (:memory machine-state) addr (unchecked-byte value))
+  (aset-short (:memory machine-state) addr value)
   machine-state)
 
 (defn set-instr
@@ -100,7 +100,17 @@
 
 (defn set-register
   [machine-state reg value]
-  (aset-byte (:registers machine-state) reg value)
+  (aset-short (:registers machine-state) reg value)
+  machine-state)
+
+(defn set-carry-flag
+  [machine-state]
+  (aset-short (:registers machine-state) 0xf 1)
+  machine-state)
+
+(defn clear-carry-flag
+  [machine-state]
+  (aset-short (:registers machine-state) 0xf 0)
   machine-state)
 
 (defn get-addr-reg 
@@ -113,11 +123,15 @@
 
 (defn get-screen-buffer-byte 
   [machine-state x y]
-  (get (:screen-buffer machine-state) (graphics/get-index x y)))
+  (let [value (get (:screen-buffer machine-state) (graphics/get-index x y))]
+    (log/debug (format "get-screen-buffer-byte (%d, %d) 0x%02x" x y value)) 
+    value))
 
 (defn set-screen-buffer-byte
   [machine-state x y value]
-  (assoc-in machine-state [:screen-buffer (graphics/get-index x y)] value))
+  (log/debug (format "set-screen-buffer-byte (%d, %d) 0x%02x" x y value)) 
+  (aset-short (:screen-buffer machine-state) (graphics/get-index x y) value)
+  machine-state)
 
 (defn initialise
   ([rom-file]
