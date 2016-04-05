@@ -173,33 +173,32 @@
     (log/debug (format "0x%04x DXVN drw V[%d](0x%02x), V[%d](0x%02x), %d, I(0x%04x)" 
                        (:pc machine-state) reg-x-num reg-x-val reg-y-val reg-y-val imm addr-reg))
 
-    ; TODO Use threading here.
-    (let [; Clears the carry flag.
-          machine-state (machine-state/clear-carry-flag machine-state)
-          ; Loop over each line in the sprite and update the screen buffer in the machine state.
-          machine-state (reduce (fn [machine-state n] 
-                                  (let [screen-buffer-byte (machine-state/get-screen-buffer-byte 
-                                                             machine-state reg-x-val (+ reg-y-val n))
+    (as-> machine-state $ 
+      (machine-state/clear-carry-flag $)
+      ; Loop over each line in the sprite and update the screen buffer in the machine state.
+      (reduce (fn [machine-state n] 
+                (let [screen-buffer-byte (machine-state/get-screen-buffer-byte 
+                                           machine-state reg-x-val (+ reg-y-val n))
 
-                                        sprite-byte (machine-state/get-memory 
-                                                      machine-state (+ addr-reg n))
+                      sprite-byte (machine-state/get-memory 
+                                    machine-state (+ addr-reg n))
 
-                                        ; Sets the carry flag in the machine state if any bits are flipped.
-                                        machine-state (if (bit-and screen-buffer-byte sprite-byte)
-                                                        (machine-state/set-carry-flag machine-state)
-                                                        machine-state)]
+                      ; Sets the carry flag in the machine state if any bits are flipped.
+                      machine-state (if (not= (bit-and screen-buffer-byte sprite-byte) 0)
+                                      (machine-state/set-carry-flag machine-state)
+                                      machine-state)]
 
-                                    ;(log/debug (format "  %d: screen-buffer-byte 0x%02x" n screen-buffer-byte)) 
-                                    ;(log/debug (format "  %d: sprite-byte 0x%02x" n sprite-byte)) 
+                  ;(log/debug (format "  %d: screen-buffer-byte 0x%02x" n screen-buffer-byte)) 
+                  ;(log/debug (format "  %d: sprite-byte 0x%02x" n sprite-byte)) 
 
-                                    ; xors the current content of the screen buffer with the sprite data.
-                                    (machine-state/set-screen-buffer-byte 
-                                      machine-state reg-x-val (+ reg-y-val n) 
-                                      (bit-xor screen-buffer-byte sprite-byte))))
+                  ; xors the current content of the screen buffer with the sprite data.
+                  (machine-state/set-screen-buffer-byte 
+                    machine-state reg-x-val (+ reg-y-val n) 
+                    (bit-xor screen-buffer-byte sprite-byte))))
+              
+              $ (range 0 imm))
 
-                                machine-state (range 0 imm))]
-
-      (machine-state/increment-pc machine-state))))
+      (machine-state/increment-pc $))))
 
 (defn execute-EX9E
   [machine-state opcode]
