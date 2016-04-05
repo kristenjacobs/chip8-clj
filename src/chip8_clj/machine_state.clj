@@ -105,11 +105,13 @@
 
 (defn set-carry-flag
   [machine-state]
+  ;(log/debug (format "set-carry-flag")) 
   (aset-short (:registers machine-state) 0xf 1)
   machine-state)
 
 (defn clear-carry-flag
   [machine-state]
+  ;(log/debug (format "clear-carry-flag")) 
   (aset-short (:registers machine-state) 0xf 0)
   machine-state)
 
@@ -124,12 +126,12 @@
 (defn get-screen-buffer-byte 
   [machine-state x y]
   (let [value (get (:screen-buffer machine-state) (graphics/get-index x y))]
-    (log/debug (format "get-screen-buffer-byte (%d, %d) 0x%02x" x y value)) 
+    ;(log/debug (format "get-screen-buffer-byte (%d, %d) 0x%02x" x y value)) 
     value))
 
 (defn set-screen-buffer-byte
   [machine-state x y value]
-  (log/debug (format "set-screen-buffer-byte (%d, %d) 0x%02x" x y value)) 
+  ;(log/debug (format "set-screen-buffer-byte (%d, %d) 0x%02x" x y value)) 
   (aset-short (:screen-buffer machine-state) (graphics/get-index x y) value)
   machine-state)
 

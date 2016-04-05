@@ -186,11 +186,11 @@
 
                                         ; Sets the carry flag in the machine state if any bits are flipped.
                                         machine-state (if (bit-and screen-buffer-byte sprite-byte)
-                                                        (machine-state/clear-carry-flag machine-state)
+                                                        (machine-state/set-carry-flag machine-state)
                                                         machine-state)]
 
-                                    (log/debug (format "  %d: screen-buffer-byte 0x%02x" n screen-buffer-byte)) 
-                                    (log/debug (format "  %d: sprite-byte 0x%02x" n sprite-byte)) 
+                                    ;(log/debug (format "  %d: screen-buffer-byte 0x%02x" n screen-buffer-byte)) 
+                                    ;(log/debug (format "  %d: sprite-byte 0x%02x" n sprite-byte)) 
 
                                     ; xors the current content of the screen buffer with the sprite data.
                                     (machine-state/set-screen-buffer-byte 
