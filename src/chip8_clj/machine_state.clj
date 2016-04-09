@@ -8,6 +8,10 @@
 (def num-reigsters 16)
 (def stack-size 16)
 
+(defn ->byte
+  [value]
+  (bit-and value 0xFF))
+
 (defn- initialise-screen
   [machine-state]
   (assoc machine-state :screen (graphics/create-screen)))
@@ -81,11 +85,13 @@
 
 (defn get-memory
   [machine-state addr]
-  (get (:memory machine-state) addr))
+  (assert (< addr memory-size)) 
+  (->byte (get (:memory machine-state) addr)))
 
 (defn set-memory
   [machine-state addr value]
-  (aset-short (:memory machine-state) addr value)
+  (assert (< addr memory-size)) 
+  (aset-short (:memory machine-state) addr (->byte value))
   machine-state)
 
 (defn set-instr
@@ -96,11 +102,13 @@
 
 (defn get-register 
   [machine-state reg]
-  (get (:registers machine-state) reg))
+  (assert (< reg num-reigsters)) 
+  (->byte (get (:registers machine-state) reg)))
 
 (defn set-register
   [machine-state reg value]
-  (aset-short (:registers machine-state) reg value)
+  (assert (< reg num-reigsters)) 
+  (aset-short (:registers machine-state) reg (->byte value))
   machine-state)
 
 (defn set-carry-flag
@@ -123,17 +131,18 @@
   [machine-state value]
   (assoc machine-state :addr-reg value))
 
-(defn get-screen-buffer-byte 
+(defn get-screen-buffer
   [machine-state x y]
   (let [value (get (:screen-buffer machine-state) (graphics/get-index x y))]
-    ;(log/debug (format "get-screen-buffer-byte (%d, %d) 0x%02x" x y value)) 
+    ;(log/debug (format "get-screen-buffer (%d, %d) %d" x y value)) 
+    (assert (or (= value 0) (= value 1)))
     value))
 
-(defn set-screen-buffer-byte
+(defn set-screen-buffer
   [machine-state x y value]
-  ;(log/debug (format "set-screen-buffer-byte (%d, %d) 0x%02x" x y value)) 
-  (aset-short (:screen-buffer machine-state) (graphics/get-index x y) value)
-  machine-state)
+  ;(log/debug (format "set-screen-buffer (%d, %d) %d" x y value)) 
+  (assert (or (= value 0) (= value 1)))
+  (assoc-in machine-state [:screen-buffer (graphics/get-index x y)] value))
 
 (defn initialise
   ([rom-file]

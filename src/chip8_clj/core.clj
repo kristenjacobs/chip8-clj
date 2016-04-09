@@ -10,11 +10,11 @@
   ;(log/debug (format "fetch-opcode, pc: 0x%x" (:pc machine-state)))
   (let [pc (:pc machine-state)
         memory (:memory machine-state)
-        byte0 (get memory pc)
-        byte1 (get memory (+ pc 1))]
+        byte0 (bit-and (get memory pc) 0xFF)
+        byte1 (bit-and (get memory (+ pc 1)) 0xFF)]
     ;(log/debug (format "fetch-opcode byte0: 0x%02x" byte0))
     ;(log/debug (format "fetch-opcode byte1: 0x%02x" byte1))
-    (bit-or (bit-shift-left byte0 8) (bit-and byte1 0xff)))) 
+    (bit-and (bit-or (bit-shift-left byte0 8) (bit-and byte1 0xFF)) 0xFFFF))) 
 
 (defn unknown-opcode-error
   [opcode]

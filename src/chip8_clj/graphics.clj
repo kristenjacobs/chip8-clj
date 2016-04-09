@@ -19,14 +19,22 @@
 
 (defn get-index
   [x y]
-  (+ (* y width-pixels) x))
+  (assert (and (>= x 0) (< x width-pixels)))
+  (assert (and (>= y 0) (< y height-pixels)))
+  (let [index (+ (* y width-pixels) x)]
+    ;(log/debug (format "get-index: (%d, %d) %d" x y index))
+    index))
 
 (defn get-pixel-in-buffer
   [screen-buffer x y]
+  (assert (and (>= x 0) (< x width-pixels)))
+  (assert (and (>= y 0) (< y height-pixels)))
   (assoc screen-buffer (get-index x y) value))
 
 (defn set-pixel-in-buffer
   [screen-buffer x y value]
+  (assert (and (>= x 0) (< x width-pixels)))
+  (assert (and (>= y 0) (< y height-pixels)))
   (assoc screen-buffer (get-index x y) value))
 
 (defn set-pixel
@@ -53,23 +61,35 @@
               (iterate inc 0) screen-buffer)))
 
 ; Testing only: Draws a diagonal line of pixels on the screen.
-;(defn handle-graphics
-;  [machine-state]
-;  (let [canvas (:screen machine-state)
-;        screen-buffer (vec (repeat (* height-pixels width-pixels) 0))]
-;    (reduce (fn [screen-buffer i]
-;              (Thread/sleep 100)
-;              (config! canvas :paint (partial refresh-screen screen-buffer))
-;              (repaint! canvas)
-;              (-> screen-buffer
-;                  (set-pixel-in-buffer i i 1)))
-;            screen-buffer (range 0 height-pixels))))
+(defn handle-graphics
+  [machine-state]
+  (let [canvas (:screen machine-state)
+        screen-buffer (vec (repeat (* height-pixels width-pixels) 0))]
+    (reduce (fn [screen-buffer i]
+              (Thread/sleep 10)
+              (config! canvas :paint (partial refresh-screen screen-buffer))
+              (repaint! canvas)
+              (-> screen-buffer
+                  (set-pixel-in-buffer i i 1)))
+            screen-buffer (range 0 height-pixels))
+    machine-state))
+
+(defn dump-screen-buffer
+  [screen-buffer]
+  (doseq [y (rseq (vec (range 0 height-pixels)))]
+    (doseq [x (range 0 width-pixels)]
+      (print (format "%d" (get screen-buffer (get-index x y)))))
+    (println "")))
 
 (defn render-screen-buffer
   [machine-state]
   (let [canvas (:screen machine-state)
         screen-buffer (:screen-buffer machine-state)]
-    (config! canvas :paint (partial refresh-screen screen-buffer))))
+    ;(dump-screen-buffer screen-buffer)
+    (config! canvas :paint (partial refresh-screen screen-buffer))
+    (repaint! canvas)
+    (Thread/sleep 10)
+    machine-state))
 
 (defn- create-frame
   [cvs]
@@ -87,7 +107,7 @@
 (defn create-screen-buffer
   []
   ;(log/debug "creating screen buffer")
-  (short-array (* height-pixels width-pixels)))
+  (vec (repeat (* height-pixels width-pixels) 0)))
 
 (defn start
   [machine-state]

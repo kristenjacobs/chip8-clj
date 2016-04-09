@@ -18,19 +18,19 @@
   [machine-state opcode]
   (let [machine-state (assoc machine-state :stack-ptr (dec (:stack-ptr machine-state)))
         return-addr (get (:stack machine-state) (:stack-ptr machine-state))]
-    (log/debug (format "0x%04x 00EE ret 0x%04x" (:pc machine-state) return-addr))
+    (log/debug (format "0x%04x 00EE 0x%04x ret 0x%04x" (:pc machine-state) opcode return-addr))
     (assoc machine-state :pc return-addr)))
 
 (defn execute-1NNN
   [machine-state opcode]
   (let [imm (utils/get-nnn opcode)]
-    (log/debug (format "0x%04x 1NNN jmp 0x%04x" (:pc machine-state) imm))
+    (log/debug (format "0x%04x 1NNN 0x%04x jmp 0x%04x" (:pc machine-state) opcode imm))
     (machine-state/set-pc machine-state imm)))
 
 (defn execute-2NNN
   [machine-state opcode]
   (let [target-addr (utils/get-nnn opcode)]
-    (log/debug (format "0x%04x 2NNN cll 0x%04x" (:pc machine-state) target-addr))
+    (log/debug (format "0x%04x 2NNN 0x%04x cll 0x%04x" (:pc machine-state) opcode target-addr))
     (aset-int (:stack machine-state) (:stack-ptr machine-state) (+ (:pc machine-state) 2))
     (-> machine-state
         (assoc :stack-ptr (inc (:stack-ptr machine-state)))
@@ -41,8 +41,8 @@
   (let [reg-num (utils/get-nibble1 opcode)
         imm (utils/get-byte1 opcode)
         reg-val (machine-state/get-register machine-state reg-num)]
-    (log/debug (format "0x%04x 3XNN skp V[%d](0x%02x) == 0x%02x" 
-                       (:pc machine-state) reg-num reg-val imm))
+    (log/debug (format "0x%04x 3XNN 0x%04x skp V[%d](0x%02x) == 0x%02x" 
+                       (:pc machine-state) opcode reg-num reg-val imm))
     (if (= reg-val imm)
         (machine-state/skip-next-pc machine-state)
         (machine-state/increment-pc machine-state))))
@@ -52,8 +52,8 @@
   (let [reg-num (utils/get-nibble1 opcode)
         imm (utils/get-byte1 opcode)
         reg-val (machine-state/get-register machine-state reg-num)]
-    (log/debug (format "0x%04x 4XNN skp V[%d](0x%02x) != 0x%02x" 
-                       (:pc machine-state) reg-num reg-val imm))
+    (log/debug (format "0x%04x 4XNN 0x%04x skp V[%d](0x%02x) != 0x%02x" 
+                       (:pc machine-state) opcode reg-num reg-val imm))
     (if (not= reg-val imm)
         (machine-state/skip-next-pc machine-state)
         (machine-state/increment-pc machine-state))))
@@ -64,8 +64,8 @@
         reg-y-num (utils/get-nibble2 opcode)
         reg-x-val (machine-state/get-register machine-state reg-x-num) 
         reg-y-val (machine-state/get-register machine-state reg-y-num)]
-    (log/debug (format "0x%04x 5XY0 skp V[%d](0x%02x) == V[%d](0x%02x)" 
-                       (:pc machine-state) reg-x-num reg-x-val reg-y-val reg-y-val))
+    (log/debug (format "0x%04x 5XY0 0x%04x skp V[%d](0x%02x) == V[%d](0x%02x)" 
+                       (:pc machine-state) opcode reg-x-num reg-x-val reg-y-val reg-y-val))
     (if (= reg-x-val reg-y-val)
         (machine-state/skip-next-pc machine-state)
         (machine-state/increment-pc machine-state))))
@@ -74,8 +74,8 @@
   [machine-state opcode]
   (let [reg (utils/get-nibble1 opcode)
         imm (utils/get-byte1 opcode)]
-    (log/debug (format "0x%04x 6XNN set V[%d](0x%02x) = 0x%02x" 
-                       (:pc machine-state) reg imm imm))
+    (log/debug (format "0x%04x 6XNN 0x%04x set V[%d](0x%02x) = 0x%02x" 
+                       (:pc machine-state) opcode reg imm imm))
     (-> machine-state
         (machine-state/set-register reg imm)
         (machine-state/increment-pc))))
@@ -86,8 +86,8 @@
         imm (utils/get-byte1 opcode)
         reg-val (machine-state/get-register machine-state reg-num)
         result (+ reg-val imm)]
-    (log/debug (format "0x%04x 7XNN add V[%d](0x%02x) = V[%d](0x%02x) + 0x%02x" 
-                       (:pc machine-state) reg-num result reg-num reg-val imm))
+    (log/debug (format "0x%04x 7XNN 0x%04x add V[%d](0x%02x) = V[%d](0x%02x) + 0x%02x" 
+                       (:pc machine-state) opcode reg-num result reg-num reg-val imm))
     (-> machine-state
         (machine-state/set-register reg-num result)
         (machine-state/increment-pc))))
@@ -146,8 +146,8 @@
 (defn execute-ANNN
   [machine-state opcode]
   (let [nnn (utils/get-nnn opcode)]
-    (log/debug (format "0x%04x ANNN sti I = 0x%03x" 
-                       (:pc machine-state) nnn))
+    (log/debug (format "0x%04x ANNN 0x%04x sti I = 0x%03x" 
+                       (:pc machine-state) opcode nnn))
     (-> machine-state
         (machine-state/set-addr-reg nnn)
         (machine-state/increment-pc))))
@@ -170,34 +170,41 @@
         reg-x-val (machine-state/get-register machine-state reg-x-num) 
         reg-y-val (machine-state/get-register machine-state reg-y-num)
         addr-reg (machine-state/get-addr-reg machine-state)]
-    (log/debug (format "0x%04x DXVN drw V[%d](0x%02x), V[%d](0x%02x), %d, I(0x%04x)" 
-                       (:pc machine-state) reg-x-num reg-x-val reg-y-val reg-y-val imm addr-reg))
+    (log/debug (format "0x%04x DXVN 0x%04x drw V[%d](0x%02x), V[%d](0x%02x), %d, I(0x%04x)" 
+                       (:pc machine-state) opcode reg-x-num reg-x-val reg-y-num reg-y-val imm addr-reg))
 
     (as-> machine-state $ 
       (machine-state/clear-carry-flag $)
-      ; Loop over each line in the sprite and update the screen buffer in the machine state.
-      (reduce (fn [machine-state n] 
-                (let [screen-buffer-byte (machine-state/get-screen-buffer-byte 
-                                           machine-state reg-x-val (+ reg-y-val n))
 
-                      sprite-byte (machine-state/get-memory 
-                                    machine-state (+ addr-reg n))
+      ; For each row in the sprite
+      (reduce 
+        (fn [machine-state row-index] 
+          (let [memory-byte (machine-state/get-memory 
+                             machine-state (+ addr-reg row-index))]
+            ; For each pixel in the row
+            (reduce 
+              (fn [machine-state pixel-index]
+                (let [screen-buffer (machine-state/get-screen-buffer 
+                                      machine-state (+ reg-x-val pixel-index) (+ reg-y-val row-index))
+
+                      memory-bit (bit-and (bit-shift-right memory-byte pixel-index) 0x1)
 
                       ; Sets the carry flag in the machine state if any bits are flipped.
-                      machine-state (if (not= (bit-and screen-buffer-byte sprite-byte) 0)
+                      machine-state (if (and (= screen-buffer 1) (= memory-bit 1))
                                       (machine-state/set-carry-flag machine-state)
                                       machine-state)]
 
-                  ;(log/debug (format "  %d: screen-buffer-byte 0x%02x" n screen-buffer-byte)) 
-                  ;(log/debug (format "  %d: sprite-byte 0x%02x" n sprite-byte)) 
+                  ; xors the current screen buffer bit with the relevent bit 
+                  ; from the memory byte, and writes it back to the machine state.
+                  (machine-state/set-screen-buffer
+                    machine-state (+ reg-x-val pixel-index) (+ reg-y-val row-index) 
+                    (bit-xor screen-buffer memory-bit))))  
 
-                  ; xors the current content of the screen buffer with the sprite data.
-                  (machine-state/set-screen-buffer-byte 
-                    machine-state reg-x-val (+ reg-y-val n) 
-                    (bit-xor screen-buffer-byte sprite-byte))))
-              
-              $ (range 0 imm))
+              machine-state (range 0 8))))
+         $ (range 0 imm))  
 
+      (graphics/render-screen-buffer $)
+      ;(graphics/handle-graphics $)
       (machine-state/increment-pc $))))
 
 (defn execute-EX9E
