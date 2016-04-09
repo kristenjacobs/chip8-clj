@@ -184,10 +184,10 @@
             ; For each pixel in the row
             (reduce 
               (fn [machine-state pixel-index]
-                (let [screen-buffer (machine-state/get-screen-buffer 
-                                      machine-state (+ reg-x-val pixel-index) (+ reg-y-val row-index))
-
-                      memory-bit (bit-and (bit-shift-right memory-byte pixel-index) 0x1)
+                (let [x (mod (+ reg-x-val pixel-index) graphics/width-pixels)
+                      y (mod (+ reg-y-val row-index) graphics/height-pixels)
+                      screen-buffer (machine-state/get-screen-buffer machine-state x y)
+                      memory-bit (bit-and (bit-shift-right memory-byte (- 7 pixel-index)) 0x1)
 
                       ; Sets the carry flag in the machine state if any bits are flipped.
                       machine-state (if (and (= screen-buffer 1) (= memory-bit 1))
@@ -197,14 +197,12 @@
                   ; xors the current screen buffer bit with the relevent bit 
                   ; from the memory byte, and writes it back to the machine state.
                   (machine-state/set-screen-buffer
-                    machine-state (+ reg-x-val pixel-index) (+ reg-y-val row-index) 
-                    (bit-xor screen-buffer memory-bit))))  
+                    machine-state x y (bit-xor screen-buffer memory-bit))))  
 
               machine-state (range 0 8))))
          $ (range 0 imm))  
 
       (graphics/render-screen-buffer $)
-      ;(graphics/handle-graphics $)
       (machine-state/increment-pc $))))
 
 (defn execute-EX9E
