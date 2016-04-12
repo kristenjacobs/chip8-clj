@@ -242,8 +242,13 @@
 
 (defn execute-FX29
   [machine-state opcode]
-  (log/debug "execute-FX29: Error: Not yet implemented")
-  (System/exit 1))
+  (let [reg-x-num (utils/get-nibble1 opcode)
+        reg-x-val (machine-state/get-register machine-state reg-x-num)]
+    (log/debug (format "0x%04x FX29 0x%04x gfa V[%d](0x%02x)" 
+                       (:pc machine-state) opcode reg-x-num reg-x-val))
+    (-> machine-state
+        (machine-state/set-addr-reg (* reg-x-val 5))
+        (machine-state/increment-pc))))
 
 (defn execute-FX33
   [machine-state opcode]

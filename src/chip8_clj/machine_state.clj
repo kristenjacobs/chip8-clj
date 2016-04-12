@@ -42,10 +42,49 @@
     (assoc :stack (int-array stack-size))
     (assoc :stack-ptr 0)))
 
+(defn get-memory
+  [machine-state addr]
+  (assert (< addr memory-size)) 
+  (->byte (get (:memory machine-state) addr)))
+
+(defn set-memory
+  [machine-state addr value]
+  (assert (< addr memory-size)) 
+  (aset-short (:memory machine-state) addr (->byte value))
+  machine-state)
+
+(defn set-instr
+  [machine-state addr value]
+  (-> machine-state
+    (set-memory addr       (utils/get-byte0 value))
+    (set-memory (+ addr 1) (utils/get-byte1 value))))
+
 (defn- initialise-font-data
   [machine-state]
-  ; TODO
-  (assoc machine-state :font-data nil))
+  (let [font-data [{:char "0" :addr 0  :bytes [0xF0 0x90 0x90 0x90 0xF0]}
+                   {:char "1" :addr 5  :bytes [0x20 0x60 0x20 0x20 0x70]}
+                   {:char "2" :addr 10 :bytes [0xF0 0x10 0xF0 0x80 0xF0]}
+                   {:char "3" :addr 15 :bytes [0xF0 0x10 0xF0 0x10 0xF0]}
+                   {:char "4" :addr 20 :bytes [0x90 0x90 0xF0 0x10 0x10]}
+                   {:char "5" :addr 25 :bytes [0xF0 0x80 0xF0 0x10 0xF0]}
+                   {:char "6" :addr 30 :bytes [0xF0 0x80 0xF0 0x90 0xF0]}
+                   {:char "7" :addr 35 :bytes [0xF0 0x10 0x20 0x40 0x40]}
+                   {:char "8" :addr 40 :bytes [0xF0 0x90 0xF0 0x90 0xF0]}
+                   {:char "9" :addr 45 :bytes [0xF0 0x90 0xF0 0x10 0xF0]}
+                   {:char "A" :addr 50 :bytes [0xF0 0x90 0xF0 0x90 0x90]}
+                   {:char "B" :addr 55 :bytes [0xE0 0x90 0xE0 0x90 0xE0]}
+                   {:char "C" :addr 60 :bytes [0xF0 0x80 0x80 0x80 0xF0]}
+                   {:char "D" :addr 65 :bytes [0xE0 0x90 0x90 0x90 0xE0]}
+                   {:char "E" :addr 70 :bytes [0xF0 0x80 0xF0 0x80 0xF0]}
+                   {:char "F" :addr 75 :bytes [0xF0 0x80 0xF0 0x80 0x80]}]
+        m (:memory machine-state)]
+    (reduce (fn [machine-state font]
+              (reduce-kv (fn [machine-state byte-index byte-data]
+                           (set-memory 
+                             machine-state 
+                             (+ (:addr font) byte-index) byte-data))
+                         machine-state (:bytes font)))
+            machine-state font-data)))
 
 (defn- initialise-pc
   [machine-state]
@@ -82,23 +121,6 @@
 (defn skip-next-pc
   [machine-state]
   (assoc machine-state :pc (+ (:pc machine-state) 4)))
-
-(defn get-memory
-  [machine-state addr]
-  (assert (< addr memory-size)) 
-  (->byte (get (:memory machine-state) addr)))
-
-(defn set-memory
-  [machine-state addr value]
-  (assert (< addr memory-size)) 
-  (aset-short (:memory machine-state) addr (->byte value))
-  machine-state)
-
-(defn set-instr
-  [machine-state addr value]
-  (-> machine-state
-    (set-memory addr       (utils/get-byte0 value))
-    (set-memory (+ addr 1) (utils/get-byte1 value))))
 
 (defn get-register 
   [machine-state reg]
