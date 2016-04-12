@@ -217,8 +217,13 @@
 
 (defn execute-FX07
   [machine-state opcode]
-  (log/info "execute-FX07: Error: Not yet implemented")
-  (System/exit 1))
+  (let [reg-x-num (utils/get-nibble1 opcode)
+        delay-timer-val (machine-state/get-delay-timer machine-state)]
+    (log/info (format "0x%04x FX15 0x%04x gdt V[%d](0x%02x)" 
+                       (:pc machine-state) opcode reg-x-num delay-timer-val))
+    (-> machine-state
+        (machine-state/set-register reg-x-num delay-timer-val)
+        (machine-state/increment-pc))))
 
 (defn execute-FX0A
   [machine-state opcode]
