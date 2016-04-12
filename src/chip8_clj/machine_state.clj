@@ -166,6 +166,22 @@
   (assert (or (= value 0) (= value 1)))
   (assoc-in machine-state [:screen-buffer (graphics/get-index x y)] value))
 
+(defn set-delay-timer
+  [machine-state value]
+  (assoc machine-state :delay-timer value))
+
+(defn get-delay-timer
+  [machine-state]
+  (:delay-timer machine-state))
+
+(defn set-sound-timer
+  [machine-state value]
+  (assoc machine-state :sound-timer value))
+
+(defn get-sound-timer
+  [machine-state]
+  (:sound-timer machine-state))
+
 (defn initialise
   ([rom-file]
    (-> (initialise)
