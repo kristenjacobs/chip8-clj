@@ -247,8 +247,19 @@
 
 (defn execute-FX33
   [machine-state opcode]
-  (log/debug "execute-FX33: Error: Not yet implemented")
-  (System/exit 1))
+  (let [reg-x-num (utils/get-nibble1 opcode)
+        reg-x-val (machine-state/get-register machine-state reg-x-num) 
+        addr-reg (machine-state/get-addr-reg machine-state)
+        ones (mod reg-x-val 10)
+        tens (quot (mod reg-x-val 100) 10)
+        hundreds (quot (mod reg-x-val 1000) 100)]
+    (log/debug (format "0x%04x FX33 0x%04x bcd V[%d](0x%02x), I(0x%04x), %d-%d-%d" 
+                       (:pc machine-state) opcode reg-x-num reg-x-val addr-reg, hundreds, tens, ones))
+    (-> machine-state
+        (machine-state/set-memory addr-reg hundreds)
+        (machine-state/set-memory (+ addr-reg 1) tens)
+        (machine-state/set-memory (+ addr-reg 2) ones)
+        (machine-state/increment-pc))))
 
 (defn execute-FX55
   [machine-state opcode]
