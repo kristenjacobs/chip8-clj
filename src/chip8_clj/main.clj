@@ -2,7 +2,7 @@
   (:require [chip8-clj.core :as core]
             [chip8-clj.graphics :as graphics]
             [chip8-clj.machine-state :as machine-state]
-            [chip8-clj.sound :as sound])
+            [chip8-clj.timer :as timer])
   (:gen-class))
 
 (defn -main 
@@ -13,6 +13,7 @@
       (System/exit 1))
     (let [machine-state (machine-state/initialise (first args))]
       (future (core/start machine-state))
-      (future (sound/start machine-state))
+      (future (timer/start machine-state/delay-timer "delay"))
+      (future (timer/start machine-state/sound-timer "sound"))
       (graphics/start machine-state))))
 

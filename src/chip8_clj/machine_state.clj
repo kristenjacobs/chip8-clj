@@ -8,6 +8,9 @@
 (def num-reigsters 16)
 (def stack-size 16)
 
+(def delay-timer (atom 0))
+(def sound-timer (atom 0))
+
 (defn ->byte
   [value]
   (bit-and value 0xFF))
@@ -20,11 +23,6 @@
   [machine-state]
   (assoc machine-state 
          :screen-buffer (graphics/create-screen-buffer)))
-
-(defn- initialise-timers
-  [machine-state]
-  (assoc machine-state :delay-timer 0)
-  (assoc machine-state :sound-timer 0))
 
 (defn- initialise-registers
   [machine-state]
@@ -135,13 +133,11 @@
 
 (defn set-carry-flag
   [machine-state]
-  ;(log/debug (format "set-carry-flag")) 
   (aset-short (:registers machine-state) 0xf 1)
   machine-state)
 
 (defn clear-carry-flag
   [machine-state]
-  ;(log/debug (format "clear-carry-flag")) 
   (aset-short (:registers machine-state) 0xf 0)
   machine-state)
 
@@ -156,31 +152,31 @@
 (defn get-screen-buffer
   [machine-state x y]
   (let [value (get (:screen-buffer machine-state) (graphics/get-index x y))]
-    ;(log/debug (format "get-screen-buffer (%d, %d) %d" x y value)) 
     (assert (or (= value 0) (= value 1)))
     value))
 
 (defn set-screen-buffer
   [machine-state x y value]
-  ;(log/debug (format "set-screen-buffer (%d, %d) %d" x y value)) 
   (assert (or (= value 0) (= value 1)))
   (assoc-in machine-state [:screen-buffer (graphics/get-index x y)] value))
 
 (defn set-delay-timer
   [machine-state value]
-  (assoc machine-state :delay-timer value))
+  (reset! delay-timer value)
+  machine-state) 
 
 (defn get-delay-timer
   [machine-state]
-  (:delay-timer machine-state))
+  @delay-timer)
 
 (defn set-sound-timer
   [machine-state value]
-  (assoc machine-state :sound-timer value))
+  (reset! sound-timer value)
+  machine-state) 
 
 (defn get-sound-timer
   [machine-state]
-  (:sound-timer machine-state))
+  @sound-timer)
 
 (defn initialise
   ([rom-file]
@@ -190,7 +186,6 @@
    (-> {}
        (initialise-screen)
        (initialise-screen-buffer)
-       (initialise-timers)
        (initialise-registers)
        (initialise-memory)
        (initialise-stack)
