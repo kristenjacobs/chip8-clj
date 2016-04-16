@@ -250,8 +250,14 @@
 
 (defn execute-FX1E
   [machine-state opcode]
-  (log/info "execute-FX1E: Error: Not yet implemented")
-  (System/exit 1))
+  (let [reg-x-num (utils/get-nibble1 opcode)
+        reg-x-val (machine-state/get-register machine-state reg-x-num)
+        addr-reg (machine-state/get-addr-reg machine-state)]
+    (log/info (format "0x%04x FX1E 0x%04x adi V[%d](0x%02x) I(0x%02x)" 
+                       (:pc machine-state) opcode reg-x-num reg-x-val addr-reg))
+    (-> machine-state
+        (machine-state/set-addr-reg (+ addr-reg reg-x-val))
+        (machine-state/increment-pc))))
 
 (defn execute-FX29
   [machine-state opcode]
