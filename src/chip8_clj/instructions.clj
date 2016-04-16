@@ -281,8 +281,15 @@
 
 (defn execute-FX55
   [machine-state opcode]
-  (log/info "execute-FX55: Error: Not yet implemented")
-  (System/exit 1))
+  (let [reg-x (utils/get-nibble1 opcode)
+        addr-reg (machine-state/get-addr-reg machine-state)]
+    (log/info (format "0x%04x FX55 0x%04x rtm V[%d], I(0x%04x)" 
+                       (:pc machine-state) opcode reg-x addr-reg))
+    (-> (reduce (fn [machine-state index]
+                  (let [reg-val (machine-state/get-register machine-state index)]
+                    (machine-state/set-memory machine-state (+ addr-reg index) reg-val)))
+                machine-state (range 0 (inc reg-x)))
+        (machine-state/increment-pc))))
 
 (defn execute-FX65
   [machine-state opcode]
