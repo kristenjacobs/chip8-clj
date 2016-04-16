@@ -9,6 +9,6 @@
                               (machine-state/set-instr 0 0xF518)
                               (machine-state/set-register 5 72))
         post-machine-state (step pre-machine-state)]
-    (is (= (machine-state/get-sound-timer post-machine-state) 72))
+    (is (= (machine-state/get-sound-timer) 72))
     (is (= (machine-state/get-pc post-machine-state) 2))))
 

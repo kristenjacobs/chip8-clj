@@ -218,7 +218,7 @@
 (defn execute-FX07
   [machine-state opcode]
   (let [reg-x-num (utils/get-nibble1 opcode)
-        delay-timer-val (machine-state/get-delay-timer machine-state)]
+        delay-timer-val (machine-state/get-delay-timer)]
     (log/info (format "0x%04x FX15 0x%04x gdt V[%d](0x%02x)" 
                        (:pc machine-state) opcode reg-x-num delay-timer-val))
     (-> machine-state
@@ -236,9 +236,8 @@
         reg-x-val (machine-state/get-register machine-state reg-x-num)]
     (log/info (format "0x%04x FX15 0x%04x sdt V[%d](0x%02x)" 
                        (:pc machine-state) opcode reg-x-num reg-x-val))
-    (-> machine-state
-        (machine-state/set-delay-timer reg-x-val)
-        (machine-state/increment-pc))))
+    (machine-state/set-delay-timer reg-x-val)
+    (machine-state/increment-pc machine-state)))
 
 (defn execute-FX18
   [machine-state opcode]
@@ -246,9 +245,8 @@
         reg-x-val (machine-state/get-register machine-state reg-x-num)]
     (log/info (format "0x%04x FX18 0x%04x sst V[%d](0x%02x)" 
                        (:pc machine-state) opcode reg-x-num reg-x-val))
-    (-> machine-state
-        (machine-state/set-sound-timer reg-x-val)
-        (machine-state/increment-pc))))
+    (machine-state/set-sound-timer reg-x-val)
+    (machine-state/increment-pc machine-state)))
 
 (defn execute-FX1E
   [machine-state opcode]

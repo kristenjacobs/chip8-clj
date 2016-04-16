@@ -161,21 +161,19 @@
   (assoc-in machine-state [:screen-buffer (graphics/get-index x y)] value))
 
 (defn set-delay-timer
-  [machine-state value]
-  (reset! delay-timer value)
-  machine-state) 
+  [value]
+  (reset! delay-timer value)) 
 
 (defn get-delay-timer
-  [machine-state]
+  []
   @delay-timer)
 
 (defn set-sound-timer
-  [machine-state value]
-  (reset! sound-timer value)
-  machine-state) 
+  [value]
+  (reset! sound-timer value))
 
 (defn get-sound-timer
-  [machine-state]
+  []
   @sound-timer)
 
 (defn initialise
