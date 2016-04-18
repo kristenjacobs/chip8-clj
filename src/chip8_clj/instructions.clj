@@ -159,8 +159,15 @@
 
 (defn execute-CXNN
   [machine-state opcode]
-  (log/info "execute-CXNN: Error: Not yet implemented")
-  (System/exit 1))
+  (let [reg-num (utils/get-nibble1 opcode)
+        imm (utils/get-byte1 opcode)
+        rnd (rand-int 0xFF)
+        result (bit-and imm rnd)]
+    (log/info (format "0x%04x CXNN 0x%04x rnd V[%d](0x%02x) <- rand(0x%02x) & NN(0x%02x)" 
+                       (:pc machine-state) opcode reg-num result rnd imm))
+    (-> machine-state
+        (machine-state/set-register reg-num result)
+        (machine-state/increment-pc))))
 
 (defn execute-DXYN
   [machine-state opcode]
