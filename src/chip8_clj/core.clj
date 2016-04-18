@@ -12,8 +12,6 @@
         memory (:memory machine-state)
         byte0 (bit-and (get memory pc) 0xFF)
         byte1 (bit-and (get memory (+ pc 1)) 0xFF)]
-    (log/debug (format "fetch-opcode byte0: 0x%02x" byte0))
-    (log/debug (format "fetch-opcode byte1: 0x%02x" byte1))
     (bit-and (bit-or (bit-shift-left byte0 8) (bit-and byte1 0xFF)) 0xFFFF))) 
 
 (defn unknown-opcode-error
@@ -23,15 +21,14 @@
 
 (defn- decode-and-execute 
   [machine-state opcode]
-  (log/debug (format "decode-and-execute: 0x%04x" opcode))
   (let [byte0   (utils/get-byte0 opcode)
         byte1   (utils/get-byte1 opcode) 
         nibble0 (utils/get-nibble0 opcode)
         nibble1 (utils/get-nibble1 opcode)
         nibble2 (utils/get-nibble2 opcode)
         nibble3 (utils/get-nibble3 opcode)]
-    (log/debug (format "decode-and-execute: byte0: 0x%02x" byte0))
-    (log/debug (format "decode-and-execute: byte1: 0x%02x" byte1))
+    (log/debug (format "decode-and-execute: opcode: 0x%04x, byte0: 0x%02x, byte1: 0x%02x" 
+                       opcode byte0 byte1))
     (cond 
       (= nibble0 0x0)
         (cond 
