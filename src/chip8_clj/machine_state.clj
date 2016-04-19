@@ -1,5 +1,6 @@
 (ns chip8-clj.machine-state
   (:require [chip8-clj.graphics :as graphics]
+            [chip8-clj.state :as state]
             [chip8-clj.utils :as utils]
             [clojure.tools.logging :as log]))
 
@@ -7,9 +8,6 @@
 (def program-load-addr 0x200)
 (def num-reigsters 16)
 (def stack-size 16)
-
-(def delay-timer (atom 0))
-(def sound-timer (atom 0))
 
 (defn ->byte
   [value]
@@ -162,19 +160,19 @@
 
 (defn set-delay-timer
   [value]
-  (reset! delay-timer value)) 
+  (reset! state/delay-timer value)) 
 
 (defn get-delay-timer
   []
-  @delay-timer)
+  @state/delay-timer)
 
 (defn set-sound-timer
   [value]
-  (reset! sound-timer value))
+  (reset! state/sound-timer value))
 
 (defn get-sound-timer
   []
-  @sound-timer)
+  @state/sound-timer)
 
 (defn initialise
   ([rom-file]

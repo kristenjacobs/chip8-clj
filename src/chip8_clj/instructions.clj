@@ -2,6 +2,7 @@
   (:require [chip8-clj.graphics :as graphics]
             [chip8-clj.utils :as utils]
             [chip8-clj.machine-state :as machine-state]
+            [chip8-clj.state :as state]
             [clojure.tools.logging :as log]))
 
 (defn execute-0NNN
@@ -214,13 +215,23 @@
 
 (defn execute-EX9E
   [machine-state opcode]
-  (log/info "execute-EX9E: Error: Not yet implemented")
-  (System/exit 1))
+  (let [reg-num (utils/get-nibble1 opcode)
+        reg-val (machine-state/get-register machine-state reg-num)]
+    (log/info (format "0x%04x EX9E 0x%04x kpt V[%d](0x%02x)" 
+                       (:pc machine-state) opcode reg-num reg-val))
+    (if (state/is-key-pressed reg-val)
+        (machine-state/skip-next-pc machine-state)
+        (machine-state/increment-pc machine-state))))
 
 (defn execute-EXA1
   [machine-state opcode]
-  (log/info "execute-EXA1: Error: Not yet implemented")
-  (System/exit 1))
+  (let [reg-num (utils/get-nibble1 opcode)
+        reg-val (machine-state/get-register machine-state reg-num)]
+    (log/info (format "0x%04x EXA1 0x%04x kpf V[%d](0x%02x)" 
+                       (:pc machine-state) opcode reg-num reg-val))
+    (if (not (state/is-key-pressed reg-val))
+        (machine-state/skip-next-pc machine-state)
+        (machine-state/increment-pc machine-state))))
 
 (defn execute-FX07
   [machine-state opcode]

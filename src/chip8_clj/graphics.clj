@@ -1,5 +1,6 @@
 (ns chip8-clj.graphics
-  (:require [clojure.tools.logging :as log])
+  (:require [clojure.tools.logging :as log]
+            [chip8-clj.state :as state])
   (:use seesaw.core
         seesaw.graphics
         seesaw.color))
@@ -76,13 +77,30 @@
     (Thread/sleep 10)
     machine-state))
 
+(defn- handle-key-pressed
+  [e]
+  (let [c (.getKeyChar e)]
+    ;(println "Pressed key:" c)
+    (reset! state/keys-pressed 
+           (conj @state/keys-pressed c))))
+
+(defn- handle-key-released
+  [e]
+  (let [c (.getKeyChar e)]
+    ;(println "Released key:" c)
+    (reset! state/keys-pressed 
+           (remove #{c} @state/keys-pressed))))
+
 (defn- create-frame
   [cvs]
-  (frame :title "Chip8-clj"
-         :content cvs
-         :width (* pixel-width width-pixels) 
-         :height (+ 15 (* pixel-height height-pixels))
-         :on-close :exit))
+  (let [f (frame :title "Chip8-clj"
+                 :content cvs
+                 :width (* pixel-width width-pixels) 
+                 :height (+ 15 (* pixel-height height-pixels))
+                 :on-close :exit)]
+    (listen f :key-pressed handle-key-pressed)
+    (listen f :key-released handle-key-released) 
+    f))
 
 (defn create-screen
   []
