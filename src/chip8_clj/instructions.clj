@@ -95,8 +95,14 @@
 
 (defn execute-8XY0
   [machine-state opcode]
-  (log/info "execute-8XY0: Error: Not yet implemented")
-  (System/exit 1))
+  (let [reg-x-num (utils/get-nibble1 opcode)
+        reg-y-num (utils/get-nibble2 opcode)
+        reg-y-val (machine-state/get-register machine-state reg-y-num)]
+    (log/info (format "0x%04x 8XY4 0x%04x set V[%d](0x%02x) = V[%d](0x%02x)" 
+                       (:pc machine-state) opcode reg-x-num reg-y-val reg-y-num reg-y-val))
+    (-> machine-state
+        (machine-state/set-register reg-x-num reg-y-val)
+        (machine-state/increment-pc))))
 
 (defn execute-8XY1
   [machine-state opcode]
@@ -123,14 +129,37 @@
 
 (defn execute-8XY4
   [machine-state opcode]
-  (log/info "execute-8XY4: Error: Not yet implemented")
-  (System/exit 1))
+  (let [reg-x-num (utils/get-nibble1 opcode)
+        reg-x-val (machine-state/get-register machine-state reg-x-num)
+        reg-y-num (utils/get-nibble2 opcode)
+        reg-y-val (machine-state/get-register machine-state reg-y-num)
+        result (+ reg-x-val reg-y-val)
+        is-carry? (> result 255)]
+    (log/info (format "0x%04x 8XY4 0x%04x add V[%d](0x%02x) = V[%d](0x%02x) + V[%d](0x%02x)" 
+                       (:pc machine-state) opcode reg-x-num result reg-x-num reg-x-val reg-y-num reg-y-val))
+    (-> (if is-carry?
+          (machine-state/set-register machine-state 0xF 1)
+          (machine-state/set-register machine-state 0xF 0))
+        (machine-state/set-register reg-x-num result)
+        (machine-state/increment-pc))))
 
 (defn execute-8XY5
   [machine-state opcode]
-  (log/info "execute-8XY5: Error: Not yet implemented")
-  
-  (System/exit 1))
+  (let [reg-x-num (utils/get-nibble1 opcode)
+        reg-x-val (machine-state/get-register machine-state reg-x-num)
+        reg-y-num (utils/get-nibble2 opcode)
+        reg-y-val (machine-state/get-register machine-state reg-y-num)
+        is-borrow? (> reg-y-val reg-x-val)
+        result (if is-borrow?
+                 (+ (- reg-x-val reg-y-val) 256)
+                 (- reg-x-val reg-y-val))]
+    (log/info (format "0x%04x 8XY4 0x%04x sub V[%d](0x%02x) = V[%d](0x%02x) - V[%d](0x%02x)" 
+                       (:pc machine-state) opcode reg-x-num result reg-x-num reg-x-val reg-y-num reg-y-val))
+    (-> (if is-borrow?
+          (machine-state/set-register machine-state 0xF 0)
+          (machine-state/set-register machine-state 0xF 1))
+        (machine-state/set-register reg-x-num result)
+        (machine-state/increment-pc))))
 
 (defn execute-8XY6
   [machine-state opcode]
