@@ -77,19 +77,42 @@
     (Thread/sleep 10)
     machine-state))
 
+(defn- keychar-to-int
+  [c]
+  (let [keychars 
+        {\0 0
+         \1 1
+         \2 2
+         \3 3
+         \4 4
+         \5 5
+         \6 6
+         \7 7
+         \8 8
+         \9 9
+         \a 10
+         \b 11
+         \c 12
+         \d 13
+         \e 14
+         \f 15}]
+    (get keychars c)))
+
 (defn- handle-key-pressed
   [e]
   (let [c (.getKeyChar e)]
-    ;(println "Pressed key:" c)
-    (reset! state/keys-pressed 
-           (conj @state/keys-pressed c))))
+    (log/debug "Pressed key:" c)
+    (if-let [i (keychar-to-int c)]
+      (reset! state/keys-pressed 
+               (conj @state/keys-pressed i)))))
 
 (defn- handle-key-released
   [e]
   (let [c (.getKeyChar e)]
-    ;(println "Released key:" c)
-    (reset! state/keys-pressed 
-           (remove #{c} @state/keys-pressed))))
+    (log/debug "Released key:" c)
+    (if-let [i (keychar-to-int c)]
+      (reset! state/keys-pressed 
+             (disj @state/keys-pressed i)))))
 
 (defn- create-frame
   [cvs]
@@ -116,18 +139,4 @@
   [machine-state]
   (log/debug "Starting graphics")
   (show! (create-frame (:screen machine-state))))
-
-; Testing only: Draws a diagonal line of pixels on the screen.
-;(defn handle-graphics
-;  [machine-state]
-;  (let [canvas (:screen machine-state)
-;        screen-buffer (vec (repeat (* height-pixels width-pixels) 0))]
-;    (reduce (fn [screen-buffer i]
-;              (Thread/sleep 10)
-;              (config! canvas :paint (partial refresh-screen screen-buffer))
-;              (repaint! canvas)
-;              (-> screen-buffer
-;                  (set-pixel-in-buffer i i 1)))
-;            screen-buffer (range 0 height-pixels))
-;    machine-state))
 

@@ -134,12 +134,9 @@
   [machine-state]
   (log/debug "Starting core")
   (graphics/render-screen-buffer machine-state)
-  (loop [ms machine-state]
-    (recur (step ms))))
-
-;(defn test-func
-;  []
-;  (let [machine-state (chip8-clj.machine-state/initialise 
-;                        "/home/kris/ProgrammingHome/chip8-clj-resources/Games/TETRIS")]
-;      (start machine-state)))
+  (try
+    (loop [ms machine-state]
+      (recur (step ms)))
+    (catch Exception e
+      (log/debug "Exception detected in core thread:" e))))
 

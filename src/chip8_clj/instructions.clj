@@ -267,8 +267,8 @@
     (log/info (format "0x%04x EXA1 0x%04x kpf V[%d](0x%02x)" 
                        (:pc machine-state) opcode reg-num reg-val))
     (if (not (state/is-key-pressed reg-val))
-        (machine-state/skip-next-pc machine-state)
-        (machine-state/increment-pc machine-state))))
+      (machine-state/skip-next-pc machine-state)
+      (machine-state/increment-pc machine-state))))
 
 (defn execute-FX07
   [machine-state opcode]
