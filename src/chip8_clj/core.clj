@@ -130,12 +130,20 @@
   (->> (fetch-opcode machine-state)
        (decode-and-execute machine-state)))
 
+(defn wait
+  [num-iterations]
+  (loop [n 0]
+    (if (= n num-iterations)
+      0
+      (recur (inc n)))))
+
 (defn start
   [machine-state]
   (log/debug "Starting core")
   (graphics/render-screen-buffer machine-state)
   (try
     (loop [ms machine-state]
+      (wait 20000)
       (recur (step ms)))
     (catch Exception e
       (log/debug "Exception detected in core thread:" e))))

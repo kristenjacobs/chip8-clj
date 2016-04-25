@@ -74,7 +74,7 @@
     ;(dump-screen-buffer screen-buffer)
     (config! canvas :paint (partial refresh-screen screen-buffer))
     (repaint! canvas)
-    (Thread/sleep 10)
+    ;(Thread/sleep 10)
     machine-state))
 
 (defn- keychar-to-int
