@@ -125,17 +125,18 @@
       :else  
         (unknown-opcode-error opcode))))
 
-(defn step
-  [machine-state]
-  (->> (fetch-opcode machine-state)
-       (decode-and-execute machine-state)))
-
-(defn wait
+(defn delay-loop
   [num-iterations]
   (loop [n 0]
     (if (= n num-iterations)
       0
       (recur (inc n)))))
+
+(defn step
+  [machine-state]
+  (delay-loop 20000)
+  (->> (fetch-opcode machine-state)
+       (decode-and-execute machine-state)))
 
 (defn start
   [machine-state]
@@ -143,7 +144,6 @@
   (graphics/render-screen-buffer machine-state)
   (try
     (loop [ms machine-state]
-      (wait 20000)
       (recur (step ms)))
     (catch Exception e
       (log/debug "Exception detected in core thread:" e))))

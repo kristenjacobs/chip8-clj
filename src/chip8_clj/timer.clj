@@ -3,7 +3,6 @@
 
 (defn- tick
   [timer timer-type]
-  ;(log/debug "timer tick" timer-type @timer)
   (if (> @timer 0)
     (swap! timer dec)
     0))  
