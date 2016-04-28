@@ -14,8 +14,15 @@
 (defn execute-00E0
   "Clears the screen."
   [machine-state opcode]
-  (log/info "execute-00E0: Error: Not yet implemented")
-  (System/exit 1))
+  (-> (reduce ; For each column in the screen buffer.
+        (fn [machine-state y] 
+          (reduce ; For each row in the screen bufer.
+            (fn [machine-state x]
+              (machine-state/set-screen-buffer machine-state x y 0))
+            machine-state (range 0 graphics/width-pixels)))
+        machine-state (range 0 graphics/height-pixels))
+      (graphics/render-screen-buffer)
+      (machine-state/increment-pc)))
 
 (defn execute-00EE
   "Returns from a subroutine."

@@ -13,11 +13,3 @@
     (is (= (machine-state/get-register post-machine-state 1) 0x3))
     (is (= (machine-state/get-pc post-machine-state) 2))))
 
-
-;6 0110
-;5 0101
-;
-;and -> 4
-;or  -> 7
-;xor -> 3
-
