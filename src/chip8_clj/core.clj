@@ -125,16 +125,9 @@
       :else  
         (unknown-opcode-error opcode))))
 
-(defn delay-loop
-  [num-iterations]
-  (loop [n 0]
-    (if (= n num-iterations)
-      0
-      (recur (inc n)))))
-
 (defn step
   [machine-state]
-  (delay-loop 20000)
+  (Thread/sleep 2)
   (->> (fetch-opcode machine-state)
        (decode-and-execute machine-state)))
 

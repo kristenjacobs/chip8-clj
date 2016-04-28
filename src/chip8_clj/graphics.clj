@@ -117,7 +117,7 @@
   (let [f (frame :title "Chip8-clj"
                  :content cvs
                  :width (* pixel-width width-pixels) 
-                 :height (+ 15 (* pixel-height height-pixels))
+                 :height (+ 25 (* pixel-height height-pixels))
                  :on-close :exit)]
     (listen f :key-pressed handle-key-pressed)
     (listen f :key-released handle-key-released) 
