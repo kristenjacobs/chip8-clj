@@ -194,7 +194,7 @@
         result (if is-borrow?
                  (+ (- reg-x-val reg-y-val) 256)
                  (- reg-x-val reg-y-val))]
-    (log/info (format "0x%04x 8XY4 0x%04x sub V[%d](0x%02x) = V[%d](0x%02x) - V[%d](0x%02x)" 
+    (log/info (format "0x%04x 8XY4 0x%04x sb5 V[%d](0x%02x) = V[%d](0x%02x) - V[%d](0x%02x)" 
                        (:pc machine-state) opcode reg-x-num result reg-x-num reg-x-val reg-y-num reg-y-val))
     (-> (if is-borrow?
           (machine-state/set-register machine-state 0xF 0)
@@ -220,8 +220,21 @@
   "Sets VX to VY minus VX. VF is set to 0 when there's a 
   borrow, and 1 when there isn't."
   [machine-state opcode]
-  (log/info "execute-8XY7: Error: Not yet implemented")
-  (System/exit 1))
+  (let [reg-x-num (utils/get-nibble1 opcode)
+        reg-x-val (machine-state/get-register machine-state reg-x-num)
+        reg-y-num (utils/get-nibble2 opcode)
+        reg-y-val (machine-state/get-register machine-state reg-y-num)
+        is-borrow? (> reg-x-val reg-y-val)
+        result (if is-borrow?
+                 (+ (- reg-y-val reg-x-val) 256)
+                 (- reg-y-val reg-x-val))]
+    (log/info (format "0x%04x 8XY4 0x%04x sb7 V[%d](0x%02x) = V[%d](0x%02x) - V[%d](0x%02x)" 
+                       (:pc machine-state) opcode reg-x-num result reg-y-num reg-y-val reg-x-num reg-x-val))
+    (-> (if is-borrow?
+          (machine-state/set-register machine-state 0xF 0)
+          (machine-state/set-register machine-state 0xF 1))
+        (machine-state/set-register reg-x-num result)
+        (machine-state/increment-pc))))
 
 (defn execute-8XYE
   "Shifts VX left by one. VF is set to the value of the most 
@@ -240,8 +253,15 @@
 (defn execute-9XY0
   "Skips the next instruction if VX doesn't equal VY."
   [machine-state opcode]
-  (log/info "execute-9XY0: Error: Not yet implemented")
-  (System/exit 1))
+  (let [reg-x-num (utils/get-nibble1 opcode)
+        reg-x-val (machine-state/get-register machine-state reg-x-num)
+        reg-y-num (utils/get-nibble2 opcode)
+        reg-y-val (machine-state/get-register machine-state reg-y-num)]
+    (log/info (format "0x%04x 9XY0 0x%04x seq V[%d](0x%02x) == V[%d](0x%02x)" 
+                       (:pc machine-state) opcode reg-x-num reg-x-val reg-y-num reg-y-val))
+    (if (not= reg-x-val reg-y-val)
+      (machine-state/skip-next-pc machine-state)
+      (machine-state/increment-pc machine-state))))
 
 (defn execute-ANNN
   "Sets I to the address NNN."
