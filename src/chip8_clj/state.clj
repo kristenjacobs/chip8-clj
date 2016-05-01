@@ -10,3 +10,7 @@
   (log/debug "keys-pressed" @keys-pressed "key-val" key-val)
   (contains? @keys-pressed key-val))
 
+(defn get-key-pressed
+  []
+  (log/debug "keys-pressed" @keys-pressed)
+  (first @keys-pressed))

@@ -361,8 +361,16 @@
 (defn execute-FX0A
   "A key press is awaited, and then stored in VX."
   [machine-state opcode]
-  (log/info "execute-FX0A: Error: Not yet implemented")
-  (System/exit 1))
+  (let [reg-x-num (utils/get-nibble1 opcode)]
+    (loop [key-pressed (state/get-key-pressed)] 
+      (if (= key-pressed nil)
+        (recur (state/get-key-pressed))
+        (do
+          (log/info (format "0x%04x FX0A 0x%04x wkp V[%d](0x%02x)" 
+                            (:pc machine-state) opcode reg-x-num key-pressed))
+          (-> machine-state
+              (machine-state/set-register reg-x-num key-pressed)
+              (machine-state/increment-pc)))))))
 
 (defn execute-FX15
   "Sets the delay timer to VX."
