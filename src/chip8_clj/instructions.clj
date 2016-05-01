@@ -242,8 +242,12 @@
 (defn execute-BNNN
   "Jumps to the address NNN plus V0."
   [machine-state opcode]
-  (log/info "execute-BNNN: Error: Not yet implemented")
-  (System/exit 1))
+  (let [reg-0-val (machine-state/get-register machine-state 0)
+        imm (utils/get-nnn opcode)
+        dest (+ imm reg-0-val)]
+    (log/info (format "0x%04x BNNN 0x%04x jpa 0x%04x + V0[0x%02x] = 0x%04x" 
+                      (:pc machine-state) opcode imm reg-0-val dest))
+    (machine-state/set-pc machine-state dest)))
 
 (defn execute-CXNN
   "Sets VX to the result of a bitwise and operation on a random number and NN."
