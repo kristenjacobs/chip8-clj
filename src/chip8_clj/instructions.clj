@@ -206,8 +206,15 @@
   "Shifts VX right by one. VF is set to the value of the 
   least significant bit of VX before the shift.[2]"
   [machine-state opcode]
-  (log/info "execute-8XY6: Error: Not yet implemented")
-  (System/exit 1))
+  (let [reg-x-num (utils/get-nibble1 opcode)
+        reg-x-val (machine-state/get-register machine-state reg-x-num)
+        result-x (bit-shift-right reg-x-val 1)
+        result-f (bit-and reg-x-val 0x1)]
+    (log/info (format "0x%04x 8XY6 0x%04x shr V[%d](0x%02x) = V[%d](0x%02x) >> 1" 
+                       (:pc machine-state) opcode reg-x-num result-x reg-x-num reg-x-val))
+    (-> (machine-state/set-register machine-state 0xF result-f)
+        (machine-state/set-register reg-x-num result-x)
+        (machine-state/increment-pc))))
 
 (defn execute-8XY7
   "Sets VX to VY minus VX. VF is set to 0 when there's a 
@@ -220,8 +227,15 @@
   "Shifts VX left by one. VF is set to the value of the most 
   significant bit of VX before the shift.[2]"
   [machine-state opcode]
-  (log/info "execute-8XYE: Error: Not yet implemented")
-  (System/exit 1))
+  (let [reg-x-num (utils/get-nibble1 opcode)
+        reg-x-val (machine-state/get-register machine-state reg-x-num)
+        result-x (bit-and (bit-shift-left reg-x-val 1) 0xFF)
+        result-f (bit-and (bit-shift-right reg-x-val 7) 0x1)]
+    (log/info (format "0x%04x 8XY6 0x%04x shl V[%d](0x%02x) = V[%d](0x%02x) << 1" 
+                       (:pc machine-state) opcode reg-x-num result-x reg-x-num reg-x-val))
+    (-> (machine-state/set-register machine-state 0xF result-f)
+        (machine-state/set-register reg-x-num result-x)
+        (machine-state/increment-pc))))
 
 (defn execute-9XY0
   "Skips the next instruction if VX doesn't equal VY."
