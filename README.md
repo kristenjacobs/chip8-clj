@@ -1,32 +1,16 @@
 # chip8-clj
 
-FIXME: description
-
-## Installation
-
-Download from http://example.com/FIXME.
+Clojure based chip-8 implementation.
 
 ## Usage
 
-FIXME: explanation
+    $ lein run <chip-8 rom file>
 
-    $ java -jar chip8-clj-0.1.0-standalone.jar [args]
-
-## Options
+## Tests
 
 FIXME: listing of options this app accepts.
 
-## Examples
-
-...
-
-### Bugs
-
-...
-
-### Any Other Sections
-### That You Think
-### Might be Useful
+    $ lein test
 
 ## License
 
