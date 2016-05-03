@@ -127,7 +127,7 @@
 
 (defn step
   [machine-state]
-  (Thread/sleep 1)
+  (Thread/sleep 2)
   (->> (fetch-opcode machine-state)
        (decode-and-execute machine-state)))
 
