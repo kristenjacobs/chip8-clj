@@ -8,8 +8,6 @@ Clojure based chip-8 implementation.
 
 ## Tests
 
-FIXME: listing of options this app accepts.
-
     $ lein test
 
 ## License
