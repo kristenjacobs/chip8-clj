@@ -101,16 +101,14 @@
   (let [c (.getKeyChar e)]
     (log/debug "Pressed key:" c)
     (if-let [i (keychar-to-int c)]
-      (reset! state/keys-pressed 
-               (conj @state/keys-pressed i)))))
+      (swap! state/keys-pressed conj i))))
 
 (defn- handle-key-released
   [e]
   (let [c (.getKeyChar e)]
     (log/debug "Released key:" c)
     (if-let [i (keychar-to-int c)]
-      (reset! state/keys-pressed 
-             (disj @state/keys-pressed i)))))
+      (swap! state/keys-pressed disj i))))
 
 (defn- create-frame
   [cvs]
