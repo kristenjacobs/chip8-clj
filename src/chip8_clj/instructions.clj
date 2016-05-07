@@ -18,10 +18,10 @@
         (fn [machine-state y] 
           (reduce ; For each row in the screen bufer.
             (fn [machine-state x]
+              (state/add-screen-update {:x x :y y :bit 0})
               (machine-state/set-screen-buffer machine-state x y 0))
             machine-state (range 0 graphics/width-pixels)))
         machine-state (range 0 graphics/height-pixels))
-      (graphics/render-screen-buffer)
       (machine-state/increment-pc)))
 
 (defn execute-00EE
@@ -316,33 +316,34 @@
     (as-> machine-state $ 
       (machine-state/clear-carry-flag $)
 
-      ; For each row in the sprite
-      (reduce 
+      (reduce ; For each row in the sprite
         (fn [machine-state row-index] 
           (let [memory-byte (machine-state/get-memory 
                              machine-state (+ addr-reg row-index))]
-            ; For each pixel in the row
-            (reduce 
+            (reduce ; For each pixel in the row
               (fn [machine-state pixel-index]
                 (let [x (mod (+ reg-x-val pixel-index) graphics/width-pixels)
                       y (mod (+ reg-y-val row-index) graphics/height-pixels)
                       screen-buffer (machine-state/get-screen-buffer machine-state x y)
                       memory-bit (bit-and (bit-shift-right memory-byte (- 7 pixel-index)) 0x1)
+                  
+                      ; xors the current screen buffer bit with the relevent bit from the memory byte.
+                      updated-bit (bit-xor screen-buffer memory-bit)
 
                       ; Sets the carry flag in the machine state if any bits are flipped.
                       machine-state (if (and (= screen-buffer 1) (= memory-bit 1))
                                       (machine-state/set-carry-flag machine-state)
                                       machine-state)]
 
-                  ; xors the current screen buffer bit with the relevent bit 
-                  ; from the memory byte, and writes it back to the machine state.
+                  ; Appends the coordinates/value of the change to the screen updates. 
+                  (state/add-screen-update {:x x :y y :bit updated-bit})
+
+                  ; Writes the updated bit back to the machine state.
                   (machine-state/set-screen-buffer
-                    machine-state x y (bit-xor screen-buffer memory-bit))))  
+                    machine-state x y updated-bit)))  
 
               machine-state (range 0 8))))
          $ (range 0 imm))  
-
-      (graphics/render-screen-buffer $)
       (machine-state/increment-pc $))))
 
 (defn execute-EX9E
@@ -371,7 +372,7 @@
   "Sets VX to the value of the delay timer."
   [machine-state opcode]
   (let [reg-x-num (utils/get-nibble1 opcode)
-        delay-timer-val (machine-state/get-delay-timer)]
+        delay-timer-val (state/get-delay-timer)]
     (log/info (format "0x%04x FX15 0x%04x gdt V[%d](0x%02x)" 
                        (:pc machine-state) opcode reg-x-num delay-timer-val))
     (-> machine-state
@@ -399,7 +400,7 @@
         reg-x-val (machine-state/get-register machine-state reg-x-num)]
     (log/info (format "0x%04x FX15 0x%04x sdt V[%d](0x%02x)" 
                        (:pc machine-state) opcode reg-x-num reg-x-val))
-    (machine-state/set-delay-timer reg-x-val)
+    (state/set-delay-timer reg-x-val)
     (machine-state/increment-pc machine-state)))
 
 (defn execute-FX18
@@ -409,7 +410,7 @@
         reg-x-val (machine-state/get-register machine-state reg-x-num)]
     (log/info (format "0x%04x FX18 0x%04x sst V[%d](0x%02x)" 
                        (:pc machine-state) opcode reg-x-num reg-x-val))
-    (machine-state/set-sound-timer reg-x-val)
+    (state/set-sound-timer reg-x-val)
     (machine-state/increment-pc machine-state)))
 
 (defn execute-FX1E

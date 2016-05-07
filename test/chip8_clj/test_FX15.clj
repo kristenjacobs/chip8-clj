@@ -1,5 +1,6 @@
 (ns chip8-clj.test-FX15
-  (:require [chip8-clj.machine-state :as machine-state])
+  (:require [chip8-clj.machine-state :as machine-state]
+            [chip8-clj.state :as state])
   (:require [clojure.test :refer :all]
             [chip8-clj.core :refer :all]))
 
@@ -9,6 +10,6 @@
                               (machine-state/set-instr 0 0xF515)
                               (machine-state/set-register 5 72))
         post-machine-state (step pre-machine-state)]
-    (is (= (machine-state/get-delay-timer) 72))
+    (is (= (state/get-delay-timer) 72))
     (is (= (machine-state/get-pc post-machine-state) 2))))
 

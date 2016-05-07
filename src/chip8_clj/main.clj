@@ -12,9 +12,8 @@
     (do
       (println "Error: Usage: lein run <rom file>")
       (System/exit 1))
-    (let [machine-state (machine-state/initialise (first args))]
-      (future (core/start machine-state))
+    (do
       (future (timer/start state/delay-timer "delay"))
       (future (timer/start state/sound-timer "sound"))
-      (graphics/start machine-state))))
-
+      (future (core/start (first args)))
+      (graphics/start))))

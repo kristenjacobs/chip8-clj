@@ -132,12 +132,12 @@
        (decode-and-execute machine-state)))
 
 (defn start
-  [machine-state]
-  (log/debug "Starting core")
-  (graphics/render-screen-buffer machine-state)
-  (try
-    (loop [ms machine-state]
-      (recur (step ms)))
-    (catch Exception e
-      (log/debug "Exception detected in core thread:" e))))
+  [rom-file]
+  (log/debug "Starting core with rom" rom-file)
+  (let [machine-state (machine-state/initialise rom-file)]
+    (try
+      (loop [ms machine-state]
+        (recur (step ms)))
+      (catch Exception e
+        (log/debug "Exception detected in core thread:" e)))))
 

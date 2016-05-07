@@ -13,14 +13,11 @@
   [value]
   (bit-and value 0xFF))
 
-(defn- initialise-screen
-  [machine-state]
-  (assoc machine-state :screen (graphics/create-screen)))
-
 (defn- initialise-screen-buffer
   [machine-state]
   (assoc machine-state 
-         :screen-buffer (graphics/create-screen-buffer)))
+         :screen-buffer (vec (repeat (* graphics/height-pixels 
+                                        graphics/width-pixels) 0))))
 
 (defn- initialise-registers
   [machine-state]
@@ -147,32 +144,23 @@
   [machine-state value]
   (assoc machine-state :addr-reg value))
 
+(defn- get-index
+  [x y]
+  (assert (and (>= x 0) (< x graphics/width-pixels)))
+  (assert (and (>= y 0) (< y graphics/height-pixels)))
+  (let [index (+ (* y graphics/width-pixels) x)]
+    index))
+
 (defn get-screen-buffer
   [machine-state x y]
-  (let [value (get (:screen-buffer machine-state) (graphics/get-index x y))]
+  (let [value (get (:screen-buffer machine-state) (get-index x y))]
     (assert (or (= value 0) (= value 1)))
     value))
 
 (defn set-screen-buffer
   [machine-state x y value]
   (assert (or (= value 0) (= value 1)))
-  (assoc-in machine-state [:screen-buffer (graphics/get-index x y)] value))
-
-(defn set-delay-timer
-  [value]
-  (reset! state/delay-timer value)) 
-
-(defn get-delay-timer
-  []
-  @state/delay-timer)
-
-(defn set-sound-timer
-  [value]
-  (reset! state/sound-timer value))
-
-(defn get-sound-timer
-  []
-  @state/sound-timer)
+  (assoc-in machine-state [:screen-buffer (get-index x y)] value))
 
 (defn initialise
   ([rom-file]
@@ -180,7 +168,6 @@
        (load-rom-into-memory rom-file)))
   ([]
    (-> {}
-       (initialise-screen)
        (initialise-screen-buffer)
        (initialise-registers)
        (initialise-memory)

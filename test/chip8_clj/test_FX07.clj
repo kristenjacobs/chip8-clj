@@ -1,10 +1,11 @@
 (ns chip8-clj.test-FX07
-  (:require [chip8-clj.machine-state :as machine-state])
+  (:require [chip8-clj.machine-state :as machine-state]
+            [chip8-clj.state :as state])
   (:require [clojure.test :refer :all]
             [chip8-clj.core :refer :all]))
 
 (deftest get-font-addr-test
-  (machine-state/set-delay-timer 84)
+  (state/set-delay-timer 84)
   (let [pre-machine-state (-> (machine-state/initialise)
                               (machine-state/set-pc 0)
                               (machine-state/set-instr 0 0xF507))
