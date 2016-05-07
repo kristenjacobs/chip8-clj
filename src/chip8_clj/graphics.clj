@@ -40,16 +40,14 @@
   (let [c (q/raw-key)]
     (log/debug "Pressed key:" c)
     (if-let [i (keychar-to-int c)]
-      (reset! state/keys-pressed 
-               (conj @state/keys-pressed i)))))
+      (swap! state/keys-pressed conj i))))
 
 (defn- handle-key-released
   []
   (let [c (q/raw-key)]
     (log/debug "Released key:" c)
     (if-let [i (keychar-to-int c)]
-      (reset! state/keys-pressed 
-             (disj @state/keys-pressed i)))))
+      (swap! state/keys-pressed disj i))))
 
 (defn- handle-closed
   []
