@@ -22,7 +22,7 @@
 (defn- initialise-registers
   [machine-state]
   (-> machine-state
-    (assoc :registers (short-array num-reigsters))
+    (assoc :registers (vec (repeat num-reigsters 0)))
     (assoc :addr-reg 0)))
 
 (defn- initialise-memory
@@ -32,7 +32,7 @@
 (defn- initialise-stack
   [machine-state]
   (-> machine-state
-    (assoc :stack (int-array stack-size))
+    (assoc :stack (vec (repeat stack-size 0)))
     (assoc :stack-ptr 0)))
 
 (defn get-memory
@@ -123,18 +123,15 @@
 (defn set-register
   [machine-state reg value]
   (assert (< reg num-reigsters)) 
-  (aset-short (:registers machine-state) reg (->byte value))
-  machine-state)
+  (assoc-in machine-state [:registers reg] (->byte value)))
 
 (defn set-carry-flag
   [machine-state]
-  (aset-short (:registers machine-state) 0xf 1)
-  machine-state)
+  (set-register machine-state 0xF 1))
 
 (defn clear-carry-flag
   [machine-state]
-  (aset-short (:registers machine-state) 0xf 0)
-  machine-state)
+  (set-register machine-state 0xF 0))
 
 (defn get-addr-reg 
   [machine-state]
@@ -143,6 +140,24 @@
 (defn set-addr-reg
   [machine-state value]
   (assoc machine-state :addr-reg value))
+
+(defn set-stack
+  [machine-state address]
+  (assoc-in machine-state [:stack (:stack-ptr machine-state)] address))
+
+(defn get-stack
+  [machine-state]
+  (get-in machine-state [:stack (:stack-ptr machine-state)]))
+
+(defn decrement-stack-ptr
+  [machine-state]
+  (assert (> (:stack-ptr machine-state) 0))  
+  (assoc machine-state :stack-ptr (dec (:stack-ptr machine-state))))
+
+(defn increment-stack-ptr
+  [machine-state]
+  (assert (< (:stack-ptr machine-state) (- stack-size 1)))  
+  (assoc machine-state :stack-ptr (inc (:stack-ptr machine-state))))
 
 (defn- get-index
   [x y]

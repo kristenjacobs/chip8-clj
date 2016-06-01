@@ -27,10 +27,10 @@
 (defn execute-00EE
   "Returns from a subroutine."
   [machine-state opcode]
-  (let [machine-state (assoc machine-state :stack-ptr (dec (:stack-ptr machine-state)))
-        return-addr (get (:stack machine-state) (:stack-ptr machine-state))]
+  (let [machine-state (machine-state/decrement-stack-ptr machine-state)
+        return-addr (machine-state/get-stack machine-state)]
     (log/info (format "0x%04x 00EE 0x%04x ret 0x%04x" (:pc machine-state) opcode return-addr))
-    (assoc machine-state :pc return-addr)))
+    (machine-state/set-pc machine-state return-addr)))
 
 (defn execute-1NNN
   "Jumps to address NNN."
@@ -44,10 +44,10 @@
   [machine-state opcode]
   (let [target-addr (utils/get-nnn opcode)]
     (log/info (format "0x%04x 2NNN 0x%04x cll 0x%04x" (:pc machine-state) opcode target-addr))
-    (aset-int (:stack machine-state) (:stack-ptr machine-state) (+ (:pc machine-state) 2))
     (-> machine-state
-        (assoc :stack-ptr (inc (:stack-ptr machine-state)))
-        (assoc :pc target-addr))))
+        (machine-state/set-stack (+ (:pc machine-state) 2))
+        (machine-state/increment-stack-ptr)
+        (machine-state/set-pc target-addr))))
 
 (defn execute-3XNN
   "Skips the next instruction if VX equals NN."
