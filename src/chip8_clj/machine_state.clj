@@ -79,10 +79,6 @@
                          machine-state (:bytes font)))
             machine-state font-data)))
 
-(defn- initialise-pc
-  [machine-state]
-  (assoc machine-state :pc program-load-addr))
-
 (defn- read-rom-into-byte-array
   [rom-file]
   (with-open [out (java.io.ByteArrayOutputStream.)]
@@ -109,11 +105,11 @@
 
 (defn increment-pc
   [machine-state]
-  (assoc machine-state :pc (+ (:pc machine-state) 2)))
+  (set-pc machine-state (+ (get-pc machine-state) 2)))
 
 (defn skip-next-pc
   [machine-state]
-  (assoc machine-state :pc (+ (:pc machine-state) 4)))
+  (set-pc machine-state (+ (get-pc machine-state) 4)))
 
 (defn get-register 
   [machine-state reg]
@@ -188,4 +184,4 @@
        (initialise-memory)
        (initialise-stack)
        (initialise-font-data)
-       (initialise-pc))))
+       (set-pc program-load-addr))))

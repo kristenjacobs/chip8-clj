@@ -29,23 +29,23 @@
   [machine-state opcode]
   (let [machine-state (machine-state/decrement-stack-ptr machine-state)
         return-addr (machine-state/get-stack machine-state)]
-    (log/info (format "0x%04x 00EE 0x%04x ret 0x%04x" (:pc machine-state) opcode return-addr))
+    (log/info (format "0x%04x 00EE 0x%04x ret 0x%04x" (machine-state/get-pc machine-state) opcode return-addr))
     (machine-state/set-pc machine-state return-addr)))
 
 (defn execute-1NNN
   "Jumps to address NNN."
   [machine-state opcode]
   (let [imm (utils/get-nnn opcode)]
-    (log/info (format "0x%04x 1NNN 0x%04x jmp 0x%04x" (:pc machine-state) opcode imm))
+    (log/info (format "0x%04x 1NNN 0x%04x jmp 0x%04x" (machine-state/get-pc machine-state) opcode imm))
     (machine-state/set-pc machine-state imm)))
 
 (defn execute-2NNN
   "Calls subroutine at NNN."
   [machine-state opcode]
   (let [target-addr (utils/get-nnn opcode)]
-    (log/info (format "0x%04x 2NNN 0x%04x cll 0x%04x" (:pc machine-state) opcode target-addr))
+    (log/info (format "0x%04x 2NNN 0x%04x cll 0x%04x" (machine-state/get-pc machine-state) opcode target-addr))
     (-> machine-state
-        (machine-state/set-stack (+ (:pc machine-state) 2))
+        (machine-state/set-stack (+ (machine-state/get-pc machine-state) 2))
         (machine-state/increment-stack-ptr)
         (machine-state/set-pc target-addr))))
 
@@ -56,7 +56,7 @@
         imm (utils/get-byte1 opcode)
         reg-val (machine-state/get-register machine-state reg-num)]
     (log/info (format "0x%04x 3XNN 0x%04x skp V[%d](0x%02x) == 0x%02x" 
-                       (:pc machine-state) opcode reg-num reg-val imm))
+                       (machine-state/get-pc machine-state) opcode reg-num reg-val imm))
     (if (= reg-val imm)
         (machine-state/skip-next-pc machine-state)
         (machine-state/increment-pc machine-state))))
@@ -68,7 +68,7 @@
         imm (utils/get-byte1 opcode)
         reg-val (machine-state/get-register machine-state reg-num)]
     (log/info (format "0x%04x 4XNN 0x%04x skp V[%d](0x%02x) != 0x%02x" 
-                       (:pc machine-state) opcode reg-num reg-val imm))
+                       (machine-state/get-pc machine-state) opcode reg-num reg-val imm))
     (if (not= reg-val imm)
         (machine-state/skip-next-pc machine-state)
         (machine-state/increment-pc machine-state))))
@@ -81,7 +81,7 @@
         reg-x-val (machine-state/get-register machine-state reg-x-num) 
         reg-y-val (machine-state/get-register machine-state reg-y-num)]
     (log/info (format "0x%04x 5XY0 0x%04x skp V[%d](0x%02x) == V[%d](0x%02x)" 
-                       (:pc machine-state) opcode reg-x-num reg-x-val reg-y-val reg-y-val))
+                       (machine-state/get-pc machine-state) opcode reg-x-num reg-x-val reg-y-val reg-y-val))
     (if (= reg-x-val reg-y-val)
         (machine-state/skip-next-pc machine-state)
         (machine-state/increment-pc machine-state))))
@@ -92,7 +92,7 @@
   (let [reg (utils/get-nibble1 opcode)
         imm (utils/get-byte1 opcode)]
     (log/info (format "0x%04x 6XNN 0x%04x set V[%d](0x%02x) = 0x%02x" 
-                       (:pc machine-state) opcode reg imm imm))
+                       (machine-state/get-pc machine-state) opcode reg imm imm))
     (-> machine-state
         (machine-state/set-register reg imm)
         (machine-state/increment-pc))))
@@ -105,7 +105,7 @@
         reg-val (machine-state/get-register machine-state reg-num)
         result (+ reg-val imm)]
     (log/info (format "0x%04x 7XNN 0x%04x add V[%d](0x%02x) = V[%d](0x%02x) + 0x%02x" 
-                       (:pc machine-state) opcode reg-num result reg-num reg-val imm))
+                       (machine-state/get-pc machine-state) opcode reg-num result reg-num reg-val imm))
     (-> machine-state
         (machine-state/set-register reg-num result)
         (machine-state/increment-pc))))
@@ -117,7 +117,7 @@
         reg-y-num (utils/get-nibble2 opcode)
         reg-y-val (machine-state/get-register machine-state reg-y-num)]
     (log/info (format "0x%04x 8XY4 0x%04x set V[%d](0x%02x) = V[%d](0x%02x)" 
-                       (:pc machine-state) opcode reg-x-num reg-y-val reg-y-num reg-y-val))
+                       (machine-state/get-pc machine-state) opcode reg-x-num reg-y-val reg-y-num reg-y-val))
     (-> machine-state
         (machine-state/set-register reg-x-num reg-y-val)
         (machine-state/increment-pc))))
@@ -131,7 +131,7 @@
         reg-y-val (machine-state/get-register machine-state reg-y-num)
         result (bit-or reg-x-val reg-y-val)]
     (log/info (format "0x%04x 8XY2 0x%04x bor V[%d](0x%02x) = V[%d](0x%02x) & V[%d](0x%02x)" 
-                       (:pc machine-state) opcode reg-x-num result reg-x-num reg-x-val reg-y-num reg-y-val))
+                       (machine-state/get-pc machine-state) opcode reg-x-num result reg-x-num reg-x-val reg-y-num reg-y-val))
     (-> machine-state
         (machine-state/set-register reg-x-num result)
         (machine-state/increment-pc))))
@@ -145,7 +145,7 @@
         reg-y-val (machine-state/get-register machine-state reg-y-num)
         result (bit-and reg-x-val reg-y-val)]
     (log/info (format "0x%04x 8XY2 0x%04x bnd V[%d](0x%02x) = V[%d](0x%02x) & V[%d](0x%02x)" 
-                       (:pc machine-state) opcode reg-x-num result reg-x-num reg-x-val reg-y-num reg-y-val))
+                       (machine-state/get-pc machine-state) opcode reg-x-num result reg-x-num reg-x-val reg-y-num reg-y-val))
     (-> machine-state
         (machine-state/set-register reg-x-num result)
         (machine-state/increment-pc))))
@@ -159,7 +159,7 @@
         reg-y-val (machine-state/get-register machine-state reg-y-num)
         result (bit-xor reg-x-val reg-y-val)]
     (log/info (format "0x%04x 8XY2 0x%04x xor V[%d](0x%02x) = V[%d](0x%02x) & V[%d](0x%02x)" 
-                       (:pc machine-state) opcode reg-x-num result reg-x-num reg-x-val reg-y-num reg-y-val))
+                       (machine-state/get-pc machine-state) opcode reg-x-num result reg-x-num reg-x-val reg-y-num reg-y-val))
     (-> machine-state
         (machine-state/set-register reg-x-num result)
         (machine-state/increment-pc))))
@@ -175,7 +175,7 @@
         result (+ reg-x-val reg-y-val)
         is-carry? (> result 255)]
     (log/info (format "0x%04x 8XY4 0x%04x add V[%d](0x%02x) = V[%d](0x%02x) + V[%d](0x%02x)" 
-                       (:pc machine-state) opcode reg-x-num result reg-x-num reg-x-val reg-y-num reg-y-val))
+                       (machine-state/get-pc machine-state) opcode reg-x-num result reg-x-num reg-x-val reg-y-num reg-y-val))
     (-> (if is-carry?
           (machine-state/set-register machine-state 0xF 1)
           (machine-state/set-register machine-state 0xF 0))
@@ -195,7 +195,7 @@
                  (+ (- reg-x-val reg-y-val) 256)
                  (- reg-x-val reg-y-val))]
     (log/info (format "0x%04x 8XY4 0x%04x sb5 V[%d](0x%02x) = V[%d](0x%02x) - V[%d](0x%02x)" 
-                       (:pc machine-state) opcode reg-x-num result reg-x-num reg-x-val reg-y-num reg-y-val))
+                       (machine-state/get-pc machine-state) opcode reg-x-num result reg-x-num reg-x-val reg-y-num reg-y-val))
     (-> (if is-borrow?
           (machine-state/set-register machine-state 0xF 0)
           (machine-state/set-register machine-state 0xF 1))
@@ -211,7 +211,7 @@
         result-x (bit-shift-right reg-x-val 1)
         result-f (bit-and reg-x-val 0x1)]
     (log/info (format "0x%04x 8XY6 0x%04x shr V[%d](0x%02x) = V[%d](0x%02x) >> 1" 
-                       (:pc machine-state) opcode reg-x-num result-x reg-x-num reg-x-val))
+                       (machine-state/get-pc machine-state) opcode reg-x-num result-x reg-x-num reg-x-val))
     (-> (machine-state/set-register machine-state 0xF result-f)
         (machine-state/set-register reg-x-num result-x)
         (machine-state/increment-pc))))
@@ -229,7 +229,7 @@
                  (+ (- reg-y-val reg-x-val) 256)
                  (- reg-y-val reg-x-val))]
     (log/info (format "0x%04x 8XY4 0x%04x sb7 V[%d](0x%02x) = V[%d](0x%02x) - V[%d](0x%02x)" 
-                       (:pc machine-state) opcode reg-x-num result reg-y-num reg-y-val reg-x-num reg-x-val))
+                       (machine-state/get-pc machine-state) opcode reg-x-num result reg-y-num reg-y-val reg-x-num reg-x-val))
     (-> (if is-borrow?
           (machine-state/set-register machine-state 0xF 0)
           (machine-state/set-register machine-state 0xF 1))
@@ -245,7 +245,7 @@
         result-x (bit-and (bit-shift-left reg-x-val 1) 0xFF)
         result-f (bit-and (bit-shift-right reg-x-val 7) 0x1)]
     (log/info (format "0x%04x 8XY6 0x%04x shl V[%d](0x%02x) = V[%d](0x%02x) << 1" 
-                       (:pc machine-state) opcode reg-x-num result-x reg-x-num reg-x-val))
+                       (machine-state/get-pc machine-state) opcode reg-x-num result-x reg-x-num reg-x-val))
     (-> (machine-state/set-register machine-state 0xF result-f)
         (machine-state/set-register reg-x-num result-x)
         (machine-state/increment-pc))))
@@ -258,7 +258,7 @@
         reg-y-num (utils/get-nibble2 opcode)
         reg-y-val (machine-state/get-register machine-state reg-y-num)]
     (log/info (format "0x%04x 9XY0 0x%04x seq V[%d](0x%02x) == V[%d](0x%02x)" 
-                       (:pc machine-state) opcode reg-x-num reg-x-val reg-y-num reg-y-val))
+                       (machine-state/get-pc machine-state) opcode reg-x-num reg-x-val reg-y-num reg-y-val))
     (if (not= reg-x-val reg-y-val)
       (machine-state/skip-next-pc machine-state)
       (machine-state/increment-pc machine-state))))
@@ -268,7 +268,7 @@
   [machine-state opcode]
   (let [nnn (utils/get-nnn opcode)]
     (log/info (format "0x%04x ANNN 0x%04x sti I = 0x%03x" 
-                       (:pc machine-state) opcode nnn))
+                       (machine-state/get-pc machine-state) opcode nnn))
     (-> machine-state
         (machine-state/set-addr-reg nnn)
         (machine-state/increment-pc))))
@@ -280,7 +280,7 @@
         imm (utils/get-nnn opcode)
         dest (+ imm reg-0-val)]
     (log/info (format "0x%04x BNNN 0x%04x jpa 0x%04x + V0[0x%02x] = 0x%04x" 
-                      (:pc machine-state) opcode imm reg-0-val dest))
+                      (machine-state/get-pc machine-state) opcode imm reg-0-val dest))
     (machine-state/set-pc machine-state dest)))
 
 (defn execute-CXNN
@@ -291,7 +291,7 @@
         rnd (rand-int 0xFF)
         result (bit-and imm rnd)]
     (log/info (format "0x%04x CXNN 0x%04x rnd V[%d](0x%02x) <- rand(0x%02x) & NN(0x%02x)" 
-                       (:pc machine-state) opcode reg-num result rnd imm))
+                       (machine-state/get-pc machine-state) opcode reg-num result rnd imm))
     (-> machine-state
         (machine-state/set-register reg-num result)
         (machine-state/increment-pc))))
@@ -311,7 +311,7 @@
         reg-y-val (machine-state/get-register machine-state reg-y-num)
         addr-reg (machine-state/get-addr-reg machine-state)]
     (log/info (format "0x%04x DXVN 0x%04x drw V[%d](0x%02x), V[%d](0x%02x), %d, I(0x%04x)" 
-                       (:pc machine-state) opcode reg-x-num reg-x-val reg-y-num reg-y-val imm addr-reg))
+                       (machine-state/get-pc machine-state) opcode reg-x-num reg-x-val reg-y-num reg-y-val imm addr-reg))
 
     (as-> machine-state $ 
       (machine-state/clear-carry-flag $)
@@ -352,7 +352,7 @@
   (let [reg-num (utils/get-nibble1 opcode)
         reg-val (machine-state/get-register machine-state reg-num)]
     (log/info (format "0x%04x EX9E 0x%04x kpt V[%d](0x%02x)" 
-                       (:pc machine-state) opcode reg-num reg-val))
+                       (machine-state/get-pc machine-state) opcode reg-num reg-val))
     (if (state/is-key-pressed reg-val)
         (machine-state/skip-next-pc machine-state)
         (machine-state/increment-pc machine-state))))
@@ -363,7 +363,7 @@
   (let [reg-num (utils/get-nibble1 opcode)
         reg-val (machine-state/get-register machine-state reg-num)]
     (log/info (format "0x%04x EXA1 0x%04x kpf V[%d](0x%02x)" 
-                       (:pc machine-state) opcode reg-num reg-val))
+                       (machine-state/get-pc machine-state) opcode reg-num reg-val))
     (if (not (state/is-key-pressed reg-val))
       (machine-state/skip-next-pc machine-state)
       (machine-state/increment-pc machine-state))))
@@ -374,7 +374,7 @@
   (let [reg-x-num (utils/get-nibble1 opcode)
         delay-timer-val (state/get-delay-timer)]
     (log/info (format "0x%04x FX15 0x%04x gdt V[%d](0x%02x)" 
-                       (:pc machine-state) opcode reg-x-num delay-timer-val))
+                       (machine-state/get-pc machine-state) opcode reg-x-num delay-timer-val))
     (-> machine-state
         (machine-state/set-register reg-x-num delay-timer-val)
         (machine-state/increment-pc))))
@@ -388,7 +388,7 @@
         (recur (state/get-key-pressed))
         (do
           (log/info (format "0x%04x FX0A 0x%04x wkp V[%d](0x%02x)" 
-                            (:pc machine-state) opcode reg-x-num key-pressed))
+                            (machine-state/get-pc machine-state) opcode reg-x-num key-pressed))
           (-> machine-state
               (machine-state/set-register reg-x-num key-pressed)
               (machine-state/increment-pc)))))))
@@ -399,7 +399,7 @@
   (let [reg-x-num (utils/get-nibble1 opcode)
         reg-x-val (machine-state/get-register machine-state reg-x-num)]
     (log/info (format "0x%04x FX15 0x%04x sdt V[%d](0x%02x)" 
-                       (:pc machine-state) opcode reg-x-num reg-x-val))
+                       (machine-state/get-pc machine-state) opcode reg-x-num reg-x-val))
     (state/set-delay-timer reg-x-val)
     (machine-state/increment-pc machine-state)))
 
@@ -409,7 +409,7 @@
   (let [reg-x-num (utils/get-nibble1 opcode)
         reg-x-val (machine-state/get-register machine-state reg-x-num)]
     (log/info (format "0x%04x FX18 0x%04x sst V[%d](0x%02x)" 
-                       (:pc machine-state) opcode reg-x-num reg-x-val))
+                       (machine-state/get-pc machine-state) opcode reg-x-num reg-x-val))
     (state/set-sound-timer reg-x-val)
     (machine-state/increment-pc machine-state)))
 
@@ -420,7 +420,7 @@
         reg-x-val (machine-state/get-register machine-state reg-x-num)
         addr-reg (machine-state/get-addr-reg machine-state)]
     (log/info (format "0x%04x FX1E 0x%04x adi V[%d](0x%02x) I(0x%02x)" 
-                       (:pc machine-state) opcode reg-x-num reg-x-val addr-reg))
+                       (machine-state/get-pc machine-state) opcode reg-x-num reg-x-val addr-reg))
     (-> machine-state
         (machine-state/set-addr-reg (+ addr-reg reg-x-val))
         (machine-state/increment-pc))))
@@ -432,7 +432,7 @@
   (let [reg-x-num (utils/get-nibble1 opcode)
         reg-x-val (machine-state/get-register machine-state reg-x-num)]
     (log/info (format "0x%04x FX29 0x%04x gfa V[%d](0x%02x)" 
-                       (:pc machine-state) opcode reg-x-num reg-x-val))
+                       (machine-state/get-pc machine-state) opcode reg-x-num reg-x-val))
     (-> machine-state
         (machine-state/set-addr-reg (* reg-x-val 5))
         (machine-state/increment-pc))))
@@ -452,7 +452,7 @@
         tens (quot (mod reg-x-val 100) 10)
         hundreds (quot (mod reg-x-val 1000) 100)]
     (log/info (format "0x%04x FX33 0x%04x bcd V[%d](0x%02x), I(0x%04x), %d-%d-%d" 
-                       (:pc machine-state) opcode reg-x-num reg-x-val addr-reg, hundreds, tens, ones))
+                       (machine-state/get-pc machine-state) opcode reg-x-num reg-x-val addr-reg, hundreds, tens, ones))
     (-> machine-state
         (machine-state/set-memory addr-reg hundreds)
         (machine-state/set-memory (+ addr-reg 1) tens)
@@ -465,7 +465,7 @@
   (let [reg-x (utils/get-nibble1 opcode)
         addr-reg (machine-state/get-addr-reg machine-state)]
     (log/info (format "0x%04x FX55 0x%04x rtm V[%d], I(0x%04x)" 
-                       (:pc machine-state) opcode reg-x addr-reg))
+                       (machine-state/get-pc machine-state) opcode reg-x addr-reg))
     (-> (reduce (fn [machine-state index]
                   (let [reg-val (machine-state/get-register machine-state index)]
                     (machine-state/set-memory machine-state (+ addr-reg index) reg-val)))
@@ -478,7 +478,7 @@
   (let [reg-x (utils/get-nibble1 opcode)
         addr-reg (machine-state/get-addr-reg machine-state)]
     (log/info (format "0x%04x FX65 0x%04x mtr V[%d], I(0x%04x)" 
-                       (:pc machine-state) opcode reg-x addr-reg))
+                       (machine-state/get-pc machine-state) opcode reg-x addr-reg))
     (-> (reduce (fn [machine-state index]
                   (let [reg-val (machine-state/get-memory machine-state (+ addr-reg index))]
                     (machine-state/set-register machine-state index reg-val)))
