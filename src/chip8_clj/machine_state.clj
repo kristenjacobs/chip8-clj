@@ -27,7 +27,7 @@
 
 (defn- initialise-memory
   [machine-state]
-  (assoc machine-state :memory (short-array memory-size)))
+  (assoc machine-state :memory (vec (repeat memory-size 0))))
 
 (defn- initialise-stack
   [machine-state]
@@ -37,14 +37,15 @@
 
 (defn get-memory
   [machine-state addr]
+  (assert (>= addr 0))
   (assert (< addr memory-size)) 
   (->byte (get (:memory machine-state) addr)))
 
 (defn set-memory
   [machine-state addr value]
+  (assert (>= addr 0))
   (assert (< addr memory-size)) 
-  (aset-short (:memory machine-state) addr (->byte value))
-  machine-state)
+  (assoc-in machine-state [:memory addr] (->byte value)))
 
 (defn set-instr
   [machine-state addr value]
@@ -69,8 +70,7 @@
                    {:char "C" :addr 60 :bytes [0xF0 0x80 0x80 0x80 0xF0]}
                    {:char "D" :addr 65 :bytes [0xE0 0x90 0x90 0x90 0xE0]}
                    {:char "E" :addr 70 :bytes [0xF0 0x80 0xF0 0x80 0xF0]}
-                   {:char "F" :addr 75 :bytes [0xF0 0x80 0xF0 0x80 0x80]}]
-        m (:memory machine-state)]
+                   {:char "F" :addr 75 :bytes [0xF0 0x80 0xF0 0x80 0x80]}]]
     (reduce (fn [machine-state font]
               (reduce-kv (fn [machine-state byte-index byte-data]
                            (set-memory 
@@ -85,15 +85,14 @@
     (clojure.java.io/copy (clojure.java.io/input-stream rom-file) out)
     (.toByteArray out)))
 
-(defn- load-rom-into-memory
+(defn load-rom-into-memory
   [machine-state rom-file]
-  (let [memory (:memory machine-state)
-        rom-bytes (read-rom-into-byte-array rom-file)]
-    (doall (map-indexed 
-             (fn [index rom-byte]
-               (aset-short memory (+ program-load-addr index) rom-byte))
-             (vec rom-bytes)))
-    machine-state))
+  (let [rom-bytes (read-rom-into-byte-array rom-file)]
+    (-> (reduce-kv (fn [machine-state byte-index byte-data]
+                     (set-memory 
+                       machine-state 
+                       (+ program-load-addr byte-index) byte-data))
+                     machine-state (vec rom-bytes)))))
 
 (defn get-pc
   [machine-state]
