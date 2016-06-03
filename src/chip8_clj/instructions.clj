@@ -27,8 +27,7 @@
 (defn execute-00EE
   "Returns from a subroutine."
   [machine-state opcode]
-  (let [machine-state (machine-state/decrement-stack-ptr machine-state)
-        return-addr (machine-state/get-stack machine-state)]
+  (let [[machine-state return-addr] (machine-state/pop-stack machine-state)]
     (log/info (format "0x%04x 00EE 0x%04x ret 0x%04x" (machine-state/get-pc machine-state) opcode return-addr))
     (machine-state/set-pc machine-state return-addr)))
 
@@ -45,8 +44,7 @@
   (let [target-addr (utils/get-nnn opcode)]
     (log/info (format "0x%04x 2NNN 0x%04x cll 0x%04x" (machine-state/get-pc machine-state) opcode target-addr))
     (-> machine-state
-        (machine-state/set-stack (+ (machine-state/get-pc machine-state) 2))
-        (machine-state/increment-stack-ptr)
+        (machine-state/push-stack (+ (machine-state/get-pc machine-state) 2))
         (machine-state/set-pc target-addr))))
 
 (defn execute-3XNN

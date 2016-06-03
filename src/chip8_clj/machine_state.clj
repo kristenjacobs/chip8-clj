@@ -137,23 +137,34 @@
   [machine-state value]
   (assoc machine-state :addr-reg value))
 
-(defn set-stack
+(defn- set-stack
   [machine-state address]
   (assoc-in machine-state [:stack (:stack-ptr machine-state)] address))
 
-(defn get-stack
+(defn- get-stack
   [machine-state]
   (get-in machine-state [:stack (:stack-ptr machine-state)]))
 
-(defn decrement-stack-ptr
+(defn- decrement-stack-ptr
   [machine-state]
   (assert (> (:stack-ptr machine-state) 0))  
   (assoc machine-state :stack-ptr (dec (:stack-ptr machine-state))))
 
-(defn increment-stack-ptr
+(defn- increment-stack-ptr
   [machine-state]
   (assert (< (:stack-ptr machine-state) (- stack-size 1)))  
   (assoc machine-state :stack-ptr (inc (:stack-ptr machine-state))))
+
+(defn pop-stack
+  [machine-state]
+  (let [machine-state (decrement-stack-ptr machine-state)]
+    [machine-state (get-stack machine-state)]))
+
+(defn push-stack
+  [machine-state address]
+  (-> machine-state
+      (set-stack address)
+      (increment-stack-ptr)))
 
 (defn- get-index
   [x y]
