@@ -3,7 +3,7 @@
   (:require [clojure.test :refer :all]
             [chip8-clj.core :refer :all]))
 
-(deftest instruction-1NNN-test
+(deftest jump-test
   (let [pre-machine-state (-> (machine-state/initialise)
                               (machine-state/set-pc 0)
                               (machine-state/set-instr 0 0x1246))

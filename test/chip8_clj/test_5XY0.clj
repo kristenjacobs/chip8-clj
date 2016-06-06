@@ -3,7 +3,7 @@
   (:require [clojure.test :refer :all]
             [chip8-clj.core :refer :all]))
 
-(deftest instruction-5XY0-skip-test
+(deftest skip-taken-test
   (let [pre-machine-state (-> (machine-state/initialise)
                               (machine-state/set-pc 0)
                               (machine-state/set-instr 0 0x5120)
@@ -12,7 +12,7 @@
         post-machine-state (step pre-machine-state)]
     (is (= (machine-state/get-pc post-machine-state) 4))))
 
-(deftest instruction-5XY0-noskip-test
+(deftest skip-not-taken-test
   (let [pre-machine-state (-> (machine-state/initialise)
                               (machine-state/set-pc 0)
                               (machine-state/set-instr 0 0x5120)
