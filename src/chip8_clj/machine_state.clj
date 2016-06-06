@@ -136,13 +136,19 @@
   [machine-state value]
   (assoc machine-state :addr-reg value))
 
-(defn- set-stack
+(defn set-stack
   [machine-state address]
   (assoc-in machine-state [:stack (:stack-ptr machine-state)] address))
 
-(defn- get-stack
+(defn get-stack
+  ([machine-state]
+   (get-stack machine-state (:stack-ptr machine-state)))
+  ([machine-state stack-ptr]
+   (get-in machine-state [:stack stack-ptr])))
+
+(defn get-stack-ptr 
   [machine-state]
-  (get-in machine-state [:stack (:stack-ptr machine-state)]))
+  (:stack-ptr machine-state))
 
 (defn- decrement-stack-ptr
   [machine-state]

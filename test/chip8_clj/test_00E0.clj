@@ -1,11 +1,10 @@
 (ns chip8-clj.test-00E0
-  (:require [chip8-clj.graphics :as graphics]
-            [chip8-clj.machine-state :as machine-state])
+  (:require [chip8-clj.machine-state :as machine-state])
   (:require [clojure.test :refer :all]
             [chip8-clj.core :refer :all]))
 
 (deftest clear-screen-test
-  (let [pre-machine-state (-> (machine-state/initialise)
+ (let [pre-machine-state (-> (machine-state/initialise)
                               (machine-state/set-pc 0)
                               (machine-state/set-instr 0 0x00E0)
                               (machine-state/set-screen-buffer 0 0 1)
@@ -22,6 +21,5 @@
     (is (= (machine-state/get-screen-buffer post-machine-state 2 2) 0))
     (is (= (machine-state/get-screen-buffer post-machine-state 3 3) 0))
     (is (= (machine-state/get-screen-buffer post-machine-state 4 4) 0))
-    (is (= (machine-state/get-screen-buffer post-machine-state 5 5) 0))
-    (is (= (machine-state/get-pc post-machine-state) 2))))
+    (is (= (machine-state/get-screen-buffer post-machine-state 5 5) 0))))
 
