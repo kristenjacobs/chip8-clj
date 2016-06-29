@@ -221,7 +221,8 @@
         result (if is-borrow?
                  (+ (- reg-y-val reg-x-val) 256)
                  (- reg-y-val reg-x-val))]
-    (trace machine-state opcode "8XY7 sb7 V[%d](0x%02x) = V[%d](0x%02x) - V[%d](0x%02x)" reg-x-num result reg-y-num reg-y-val reg-x-num reg-x-val)
+    (trace machine-state opcode "8XY7 sb7 V[%d](0x%02x) = V[%d](0x%02x) - V[%d](0x%02x)" 
+           reg-x-num result reg-y-num reg-y-val reg-x-num reg-x-val)
     (-> (if is-borrow?
           (machine-state/set-register machine-state 0xF 0)
           (machine-state/set-register machine-state 0xF 1))
@@ -236,7 +237,8 @@
         reg-x-val (machine-state/get-register machine-state reg-x-num)
         result-x (bit-and (bit-shift-left reg-x-val 1) 0xFF)
         result-f (bit-and (bit-shift-right reg-x-val 7) 0x1)]
-    (trace machine-state opcode "8XYE shl V[%d](0x%02x) = V[%d](0x%02x) << 1" reg-x-num result-x reg-x-num reg-x-val)
+    (trace machine-state opcode "8XYE shl V[%d](0x%02x) = V[%d](0x%02x) << 1" 
+           reg-x-num result-x reg-x-num reg-x-val)
     (-> (machine-state/set-register machine-state 0xF result-f)
         (machine-state/set-register reg-x-num result-x)
         (machine-state/increment-pc))))
@@ -248,7 +250,8 @@
         reg-x-val (machine-state/get-register machine-state reg-x-num)
         reg-y-num (utils/get-nibble2 opcode)
         reg-y-val (machine-state/get-register machine-state reg-y-num)]
-    (trace machine-state opcode "9XY0 seq V[%d](0x%02x) == V[%d](0x%02x)" reg-x-num reg-x-val reg-y-num reg-y-val)
+    (trace machine-state opcode "9XY0 seq V[%d](0x%02x) == V[%d](0x%02x)" 
+           reg-x-num reg-x-val reg-y-num reg-y-val)
     (if (not= reg-x-val reg-y-val)
       (machine-state/skip-next-pc machine-state)
       (machine-state/increment-pc machine-state))))
@@ -297,7 +300,8 @@
         reg-x-val (machine-state/get-register machine-state reg-x-num) 
         reg-y-val (machine-state/get-register machine-state reg-y-num)
         addr-reg (machine-state/get-addr-reg machine-state)]
-    (trace machine-state opcode "DXVN drw V[%d](0x%02x), V[%d](0x%02x), %d, I(0x%04x)" reg-x-num reg-x-val reg-y-num reg-y-val imm addr-reg)
+    (trace machine-state opcode "DXVN drw V[%d](0x%02x), V[%d](0x%02x), %d, I(0x%04x)" 
+           reg-x-num reg-x-val reg-y-num reg-y-val imm addr-reg)
 
     (as-> machine-state $ 
       (machine-state/clear-carry-flag $)
@@ -429,7 +433,8 @@
         ones (mod reg-x-val 10)
         tens (quot (mod reg-x-val 100) 10)
         hundreds (quot (mod reg-x-val 1000) 100)]
-    (trace machine-state opcode "FX33 bcd V[%d](0x%02x), I(0x%04x), %d-%d-%d" reg-x-num reg-x-val addr-reg, hundreds, tens, ones)
+    (trace machine-state opcode "FX33 bcd V[%d](0x%02x), I(0x%04x), %d-%d-%d" 
+           reg-x-num reg-x-val addr-reg, hundreds, tens, ones)
     (-> machine-state
         (machine-state/set-memory addr-reg hundreds)
         (machine-state/set-memory (+ addr-reg 1) tens)
